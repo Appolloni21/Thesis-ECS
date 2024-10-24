@@ -1,0 +1,127 @@
+{
+    "@context": "http://www.w3.org/ns/csvw",
+    "tables": [
+        {
+            "@id": "0c50e0ff-ffb5-4667-8bdf-42495705141f",
+            "@type": "table",
+            "url": "https://dati.mit.gov.it/catalog/dataset/dataset-parco-circolante-dei-veicoli/resource/0c50e0ff-ffb5-4667-8bdf-42495705141f",
+            "primaryKey": "progressivo",
+            "aboutURL": "https://dati.mit.gov.it/catalog/dataset/dataset-parco-circolante-dei-veicoli/{progressivo}",
+            "tableSchema": {
+                "columns": [
+                    {
+                        "name": "progressivo",
+                        "datatype": "number",
+                        "dc:description": "Questa colonna contiene il numero progressivo del veicolo come record nel dataset"
+                    },
+                    {
+                        "name": "tipo veicolo",
+                        "datatype": {
+                            "base": "string",
+                            "format": "A|M"
+                        },
+                        "dc:description": "Questa colonna contiene il tipo di veicolo ( A = Autoveicolo , M = Motoveicolo)"
+                    },
+                    {
+                        "name": "destinazione",
+                        "datatype": {
+                            "base": "string",
+                            "format": "AUTOVEICOLO IN SERVIZIO PUBBLICO DI LINEA INTEGRATIVO|AUTOVEICOLO USO ESCLUSIVO DI POLIZIA|AUTOVETTURA PER TRASPORTO DI PERSONE|AUTOBUS PER TRASPORTO DI PERSONE|AUTOCARRO PER TRASPORTO DI COSE|AUTOCARAVAN|AUTOVEICOLO PER USO SPECIALE|TRAS.SPECIFICO PERSONE PART.CONDIZIONI|AUTOVEIC.TRASP.PROMISCUO PERSONE/COSE|TRATTORE STRADALE PER RIMORCHIO|TRATTORE PER SEMIRIMORCHIO|QUADRICICLO PER TRASPORTO DI PERSONE|QUADRICICLO PER TRASPORTO DI COSE|QUADRICICLO PER USO SPECIALE|QUADRICICLO TRASPORTO SPECIFICO|MOTOVEICOLO USO ESCLUSIVO DI POLIZIA|TRICICLO PER TRASPORTO PROMISCUO|TRICICLO PER USO SPECIALE|TRICICLO PER TRASPORTO SPECIFICO|MOTOCICLO PER TRASPORTO PERSONE|TRICICLO PER TRASPORTO COSE|TRICICLO PER TRASPORTO DI PERSONE"
+                        },
+                        "dc:description": "Questa colonna contiene la destinazione del veicolo . Per destinazione del veicolo s'intende la sua utilizzazione in base alle caratteristiche tecniche.  (Per  A gli autoveicoli: AUTOVEICOLO IN SERVIZIO PUBBLICO DI LINEA INTEGRATIVO, AUTOVEICOLO USO ESCLUSIVO DI POLIZIA, AUTOVETTURA PER TRASPORTO DI PERSONE, AUTOBUS PER TRASPORTO DI PERSONE, AUTOCARRO PER TRASPORTO DI COSE, AUTOCARAVAN, AUTOVEICOLO PER USO SPECIALE, TRAS.SPECIFICO PERSONE PART.CONDIZIONI, AUTOVEIC.TRASP.PROMISCUO PERSONE/COSE,TRATTORE STRADALE PER RIMORCHIO,TRATTORE PER SEMIRIMORCHIO . Per M i Motoveicoli: QUADRICICLO PER TRASPORTO DI PERSONE, \nQUADRICICLO PER TRASPORTO DI COSE\n, QUADRICICLO PER USO SPECIALE, \nQUADRICICLO TRASPORTO SPECIFICO, \nMOTOVEICOLO USO ESCLUSIVO DI POLIZIA, \nTRICICLO PER TRASPORTO PROMISCUO, \nTRICICLO PER USO SPECIALE\n, TRICICLO PER TRASPORTO SPECIFICO, \nMOTOCICLO PER TRASPORTO PERSONE\n, TRICICLO PER TRASPORTO COSE\n, TRICICLO PER TRASPORTO DI PERSONE."
+                    },
+                    {
+                        "name": "uso",
+                        "datatype": "string",
+                        "dc:description": "Questa colonna contiene il tipo d'uso del veicolo. Per uso del veicolo s'intende la sua utilizzazione economica. I veicoli possono essere adibiti a uso proprio o a uso di terzi. (Proprio, Di terzi da noleggio con conducente, di terzi da locare senza conducente, Di terzi, Di terzi con autorizzazione vincolate, Di terzi con autorizzazione libera, Uso speciale )"
+                    },
+                    {
+                        "name": "comune residenza",
+                        "datatype": "string",
+                        "dc:description": "Questa colonna contiene il comune dove risiede l'intestatario del veicolo"
+                    },
+                    {
+                        "name": "provincia residenza",
+                        "datatype": "string",
+                        "dc:description": "Questa colonna contiene la provincia dove risiede l'intestatario del veicolo"
+                    },
+                    {
+                        "name": "età intestatario",
+                        "datatype": "string",
+                        "dc:description": "Questa colonna contiene l'età dell'intestatario del veicolo alla data di produzione del dataset"
+                    },
+                    {
+                        "name": "sesso",
+                        "datatype": "string",
+                        "dc:description": "Questa colonna contiene il sesso dell'intestatario del veicolo"
+                    },
+                    {
+                        "name": "marca",
+                        "datatype": "string",
+                        "dc:description": "Questa colonna contiene la marca del veicolo"
+                    },
+                    {
+                        "name": "cilindrata",
+                        "datatype": "numeric",
+                        "dc:description": "Questa colonna contiene la cilindrata del veicolo misurata in centimetro cubo (cm3) . "
+                    },
+                    {
+                        "name": "alimentazione",
+                        "datatype": {
+                            "base": "string",
+                            "format": "GASOLIO/METANO|GASOLIO/GPL|BENZINA|BENZINA/OLIO|BENZINA/WANK|ELETTRICA|GASOLIO|GPL|BENZINA/GPL|BENZINA/METANO|METANO|MISCELA|PETROLIO|IBRIDO BENZINA/ELETTRICO|IBRIDO GASOLIO/ELETTRICO|BENZINA/ETANOLO"
+                        },
+                        "dc:description": "Questa colonna contiene l'alimentazione del motore del veicolo , ossia il tipo di combustibile (GASOLIO/METANO, GASOLIO/GPL, BENZINA, BENZINA/OLIO, BENZINA/WANK, ELETTRICA,GASOLIO, GPL, BENZINA/GPL, BENZINA/METANO, METANO, MISCELA,PETROLIO,IBRIDO BENZINA/ELETTRICO, IBRIDO GASOLIO/ELETTRICO, BENZINA/ETANOLO)"
+                    },
+                    {
+                        "name": "kw",
+                        "datatype": "numeric",
+                        "dc:description": "Potenza in KW"
+                    },
+                    {
+                        "name": "data immatricolazione",
+                        "datatype": {
+                            "base": "date",
+                            "format": "dd/mm/yyyy"
+                        },
+                        "dc:description": "Questa colonna contiene la data di immatricolazione del veicolo"
+                    },
+                    {
+                        "name": "classe euro",
+                        "datatype": {
+                            "base": "string",
+                            "format": "pre-Euro 1|Euro 1|Euro 2|Euro 3|Euro 4|Euro 5|Euro 6"
+                        },
+                        "dc:description": "Questa colonna contiene la classe ambientale di appartenenza (categoria Euro) di autoveicoli  (pre-Euro 1, Euro 1, Euro 2, Euro 3, Euro 4, Euro 5, Euro 6) e motoveicoli (pre-Euro 1, Euro 1, Euro 2, Euro 3) definita dalle direttive europee rispettate nell'anno di produzione e che è riportata nel libretto di circolazione."
+                    },
+                    {
+                        "name": "emissioni co2",
+                        "datatype": "numeric",
+                        "dc:description": "Questa colonna contiene le emissione CO2 del veicolo misurate in g/km ossia grammi al chilometro."
+                    },
+                    {
+                        "name": "massa complessiva",
+                        "datatype": "numeric",
+                        "dc:description": "Questa colonna contiene la massa complessiva del veicolo misurata attraverso il suo peso in chilogrammi (Kg). Si definisce massa complessiva la massa del veicolo in ordine di marcia (tara) più tutto il suo carico (portata)."
+                    },
+                    {
+                        "name": "revisone in regola s/n",
+                        "datatype": {
+                            "base": "string",
+                            "format": "S|N"
+                        },
+                        "dc:description": "Questa colonna contiene lo stato dell'obbligo di revisione del veicolo (S= SI , N=NO) ai fini della circolazione."
+                    },
+                    {
+                        "name": "assicurazione in regola s/n",
+                        "datatype": {
+                            "base": "string",
+                            "format": "S|N"
+                        },
+                        "dc:description": "Questa colonna contiene lo stato dell'obbligo dell'assicurazione del veicolo (S= SI , N=NO) ai fini della circolazione."
+                    }
+                ]
+            }
+        }
+    ]
+}

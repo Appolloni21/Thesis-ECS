@@ -1,0 +1,84 @@
+{
+    "0": {
+        "Brand": "Abarth",
+        "Model": "124 Spider",
+        "Powertrain Architecture": "Internal Combustion engine",
+        "Body type": "Roadster",
+        "Fuel Type": "Petrol (Gasoline)",
+        "Power": "170 Hp @ 5500 rpm.",
+        "Engine displacement": "1368 cm3\n83.48 cu. in.",
+        "Kerb Weight": "1080 kg\r\n\t\t\t\t\t2380.99 lbs."
+    },
+    "1": {
+        "Brand": "Abarth",
+        "Model": "124 Spider",
+        "Powertrain Architecture": "Internal Combustion engine",
+        "Body type": "Roadster",
+        "Fuel Type": "Petrol (Gasoline)",
+        "Power": "170 Hp @ 5500 rpm.",
+        "Engine displacement": "1368 cm3\n83.48 cu. in.",
+        "Kerb Weight": "1060 kg\r\n\t\t\t\t\t2336.9 lbs."
+    },
+    "2": {
+        "Brand": "Abarth",
+        "Model": "124 Spider",
+        "Powertrain Architecture": "Internal Combustion engine",
+        "Body type": "Cabriolet",
+        "Fuel Type": "Petrol (Gasoline)",
+        "Emission standard": "Euro 6",
+        "Power": "170 Hp @ 5500 rpm.",
+        "Engine displacement": "1368 cm3\n83.48 cu. in.",
+        "Kerb Weight": "1060 kg\r\n\t\t\t\t\t2336.9 lbs."
+    },
+    "3": {
+        "Brand": "Abarth",
+        "Model": "124 Spider",
+        "Powertrain Architecture": "Internal Combustion engine",
+        "Body type": "Cabriolet",
+        "Fuel Type": "Petrol (Gasoline)",
+        "Emission standard": "Euro 6",
+        "Power": "170 Hp @ 5500 rpm.",
+        "Engine displacement": "1368 cm3\n83.48 cu. in.",
+        "Kerb Weight": "1060 kg\r\n\t\t\t\t\t2336.9 lbs."
+    },
+    "4": {
+        "Brand": "Abarth",
+        "Model": "500",
+        "Powertrain Architecture": "BEV (Electric Vehicle)",
+        "Body type": "Cabriolet",
+        "Fuel Type": "Electricity",
+        "Electric motor power": "155 Hp"
+    },
+    "5": {
+        "Brand": "Abarth",
+        "Model": "500",
+        "Powertrain Architecture": "BEV (Electric Vehicle)",
+        "Body type": "Hatchback",
+        "Fuel Type": "Electricity",
+        "Electric motor power": "155 Hp"
+    },
+    "6": {
+        "Brand": "Abarth",
+        "Model": "500",
+        "Powertrain Architecture": "Internal Combustion engine",
+        "Body type": "Cabriolet",
+        "CO2 emissions (NEDC)": "151 g/km",
+        "Fuel Type": "Petrol (Gasoline)",
+        "Emission standard": "Euro 5",
+        "Power": "140 Hp @ 5500 rpm.",
+        "Engine displacement": "1368 cm3\n83.48 cu. in.",
+        "Kerb Weight": "1085 kg\r\n\t\t\t\t\t2392.02 lbs."
+    },
+    "7": {
+        "Brand": "Abarth",
+        "Model": "500",
+        "Powertrain Architecture": "Internal Combustion engine",
+        "Body type": "Cabriolet",
+        "CO2 emissions (NEDC)": "155 g/km",
+        "Fuel Type": "Petrol (Gasoline)",
+        "Emission standard": "Euro 5",
+        "Power": "135 Hp @ 5500 rpm.",
+        "Engine displacement": "1368 cm3\n83.48 cu. in.",
+        "Kerb Weight": "1075 kg\r\n\t\t\t\t\t2369.97 lbs."
+    }
+}
