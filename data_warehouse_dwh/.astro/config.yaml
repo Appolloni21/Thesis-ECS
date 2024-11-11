@@ -1,0 +1,6 @@
+project:
+    name: data-warehouse-dwh
+webserver:
+  port: 8081
+postgres:
+  port: 5435

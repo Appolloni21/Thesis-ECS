@@ -1,0 +1,129 @@
+x-superset-image: &superset-image apachesuperset.docker.scarf.sh/apache/superset:${TAG:-latest-dev}
+x-superset-depends-on: &superset-depends-on
+  - db
+  - redis
+x-superset-volumes:
+  &superset-volumes # /app/pythonpath_docker will be appended to the PYTHONPATH in the final container
+  - ./superset/docker:/app/docker
+  - superset_home:/app/superset_home
+
+services:
+  db-dwh:
+    image: postgres:latest
+    container_name: postgres_warehouse_container
+    restart: unless-stopped
+    ports:
+      - "7432:5432"
+    environment:
+      POSTGRES_USER: postgres-name
+      POSTGRES_PASSWORD: postgres-password
+    volumes:
+      - local_pgdata:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin4_warehouse_container
+    restart: unless-stopped
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin-password
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+  
+  #per far funzionare parzialmente superset bisogna commentare ports
+  #redis:
+  #  image: redis:7
+  #  container_name: superset_cache
+  #  restart: unless-stopped
+    #ports:
+    #  - 6380:6379
+  #  volumes:
+  #    - redis:/data
+  #unica cosa che rimane da fare è riuscire a cambiare le credenziali di superset da admin-admin ad altro
+  redis:
+    image: redis:latest
+    expose:
+      - 6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 50
+      start_period: 30s
+    restart: unless-stopped
+
+  
+  
+  db:
+    env_file: superset/docker/.env # default
+    image: postgres:15
+    container_name: superset_db
+    restart: unless-stopped
+    ports:
+      - "8432:5432"
+    volumes:
+      - db_home:/var/lib/postgresql/data
+      - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+  
+  superset:
+    env_file: superset/docker/.env # default
+    image: *superset-image
+    container_name: superset_app
+    command: ["/app/docker/docker-bootstrap.sh", "app-gunicorn"]
+    user: "root"
+    restart: unless-stopped
+    ports:
+      - 8088:8088
+    depends_on: *superset-depends-on
+    volumes: *superset-volumes
+
+  superset-init:
+    image: *superset-image
+    container_name: superset_init
+    command: ["/app/docker/docker-init.sh"]
+    env_file: superset/docker/.env # default
+    depends_on: *superset-depends-on
+    user: "root"
+    volumes: *superset-volumes
+    healthcheck:
+      disable: true
+
+  superset-worker:
+    image: *superset-image
+    container_name: superset_worker
+    command: ["/app/docker/docker-bootstrap.sh", "worker"]
+    env_file: superset/docker/.env # default
+    restart: unless-stopped
+    depends_on: *superset-depends-on
+    user: "root"
+    volumes: *superset-volumes
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "celery -A superset.tasks.celery_app:app inspect ping -d celery@$$HOSTNAME",
+        ]
+
+  superset-worker-beat:
+    image: *superset-image
+    container_name: superset_worker_beat
+    command: ["/app/docker/docker-bootstrap.sh", "beat"]
+    env_file: superset/docker/.env # default
+    restart: unless-stopped
+    depends_on: *superset-depends-on
+    user: "root"
+    volumes: *superset-volumes
+    healthcheck:
+      disable: true
+
+volumes:
+  local_pgdata:
+  pgadmin-data:
+  superset_home:
+    external: false
+  db_home:
+    external: false
+  redis:
+    external: false
