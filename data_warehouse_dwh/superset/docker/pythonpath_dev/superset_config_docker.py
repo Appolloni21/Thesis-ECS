@@ -15,10 +15,19 @@
 # limitations under the License.
 #
 
-# Ignore everything
-*
-# DON'T ignore the .gitignore
-!.gitignore
-!superset_config.py
-!superset_config_docker.py
-!superset_config_local.example
+#
+# This is an example "local" configuration file. In order to set/override config
+# options that ONLY apply to your local environment, simply copy/rename this file
+# to docker/pythonpath_dev/superset_config_docker.py
+# It ends up being imported by docker/superset_config.py which is loaded by
+# superset/config.py
+#
+
+#SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://pguser:pgpwd@some.host/superset"
+#SQLALCHEMY_ECHO = True
+
+#REDIS_PORT = 6380
+#SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres-name:postgres-password@172.17.0.1:7432/postgres-name'
+
+WTF_CSRF_ENABLED = False
+TALISMAN_ENABLED = False
