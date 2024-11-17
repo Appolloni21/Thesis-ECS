@@ -27,7 +27,7 @@
 #SQLALCHEMY_ECHO = True
 
 #REDIS_PORT = 6380
-#SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres-name:postgres-password@172.17.0.1:7432/postgres-name'
+#SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://dwh_warehouse_ecs:postgres-password@172.17.0.1:7432/dwh_warehouse_ecs'
 
 WTF_CSRF_ENABLED = False
 TALISMAN_ENABLED = False

@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: dwh_car_fleet
+    database: dwh_warehouse_ecs
+    schema: public
+    tables:
+      - name: car_valle_aosta

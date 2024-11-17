@@ -1,0 +1,16 @@
+name: 'dwh_car_fleet'
+
+config-version: 2
+version: '0.1'
+
+profile: 'dwh_car_fleet'
+
+model-paths: ["models"]
+
+
+require-dbt-version: [">=1.0.0", "<2.0.0"]
+
+models:
+  dwh_car_fleet:
+      materialized: table
+      

@@ -1,0 +1,12 @@
+default:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: 172.17.0.1
+      user: dwh_warehouse_ecs
+      password: postgres-password
+      port: 7432
+      dbname: dwh_warehouse_ecs 
+      schema: public
+      threads: 4

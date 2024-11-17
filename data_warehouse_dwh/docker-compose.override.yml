@@ -15,7 +15,7 @@ services:
     ports:
       - "7432:5432"
     environment:
-      POSTGRES_USER: postgres-name
+      POSTGRES_USER: dwh_warehouse_ecs
       POSTGRES_PASSWORD: postgres-password
     volumes:
       - local_pgdata:/var/lib/postgresql/data
