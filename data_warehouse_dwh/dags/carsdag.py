@@ -11,7 +11,7 @@ from airflow.providers.postgres.hooks.postgres import PostgresHook
 from datetime import datetime
 
 import os
-
+import json
 
 ENV_ID = os.environ.get("SYSTEM_TESTS_ENV_ID")
 DAG_ID = "DWH_ECS_dag"
@@ -41,7 +41,38 @@ def cars_dag():
                 file,
             )
         conn.commit()
+
+    create_car_spec_table = SQLExecuteQueryOperator(
+        task_id="create_car_spec_table",
+        conn_id="dwh_pgres",
+        sql="sql/raw_car_spec_1.sql"
+    )
+
+    @task
+    def load_car_spec():
+        data_path = "include/dataset/cars_test_2.json"
+        postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
+        conn = postgres_hook.get_conn()
+        cur = conn.cursor()
+        with open(data_path, "r") as file:
+            data = json.load(file)
+        
+
+        query = """ INSERT INTO raw_car_spec (dati) VALUES (%s); """
+        
+        
+        #Inserisce i dati in un unica riga e unica colonna 
+        #cur.execute(query, [json.dumps(data)])
+
+        #Inserisce i dati in un unica colonna ma in più righe
+        for row in data.values():
+            cur.execute(query, [json.dumps(row)])
+        
+        conn.commit()
     
-    create_car_table >> load_data()
+
+
+    #create_car_table >> load_data() >> create_car_spec_table >> load_car_spec()
+    create_car_spec_table >> load_car_spec()
 
 dag = cars_dag()
