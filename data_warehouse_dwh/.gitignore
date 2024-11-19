@@ -10,4 +10,3 @@ webserver_config.py
 airflow.cfg
 airflow.db
 test.txt
-include/datasets/
