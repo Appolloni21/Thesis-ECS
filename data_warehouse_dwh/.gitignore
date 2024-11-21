@@ -12,3 +12,4 @@ airflow.db
 test.txt
 include/datasets_2019
 include/datasets_scraping
+include/datasets_regions
