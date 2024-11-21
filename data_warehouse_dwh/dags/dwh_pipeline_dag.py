@@ -76,11 +76,10 @@ def dwh_pipeline_dag():
             cur = conn.cursor()
             with open(data_path, "r") as file:
                 cur.copy_expert(
-                    "COPY raw_car_fleet_B FROM STDIN WITH CSV HEADER DELIMITER AS ',' QUOTE '\"' ",
+                    "COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT CSV, HEADER, DELIMITER ',', QUOTE '\"') ",
                     file,
                 )
             conn.commit()
-
 
     # TASK 5: create table for regions and provinces
     create_raw_table_3 = SQLExecuteQueryOperator(
@@ -95,7 +94,7 @@ def dwh_pipeline_dag():
         data_path = "include/gi_comuni_cap.csv"
         postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
         conn = postgres_hook.get_conn()
-        
+
         cur = conn.cursor()
         with open(data_path, "r") as file:
             cur.copy_expert(
@@ -111,7 +110,7 @@ def dwh_pipeline_dag():
         sql="sql/raw_car_spec_1.sql"
     )
 
-    #TASK 8
+    # TASK 8
     @task
     def load_car_spec():
         data_path = "include/datasets_scraping/cars_test_2.json"
@@ -131,11 +130,11 @@ def dwh_pipeline_dag():
             cur.execute(query, [json.dumps(row)])
 
         conn.commit()
-    
-    # extract_1 >>
+
+    # extract_1
     # create_raw_table_1 >> load_data_1() >>
-    # create_raw_table_2 >> load_data_2() >>
-    create_raw_table_3 >> load_data_3()
-    #create_car_spec_table >> load_car_spec()
+    create_raw_table_2 >> load_data_2() 
+    # create_raw_table_3 >> load_data_3()
+    # create_car_spec_table >> load_car_spec()
 
 dag = dwh_pipeline_dag()

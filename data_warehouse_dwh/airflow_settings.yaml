@@ -1,0 +1,24 @@
+# This file allows you to configure Airflow Connections, Pools, and Variables in a single place for local development only.
+# NOTE: json dicts can be added to the conn_extra field as yaml key value pairs. See the example below.
+
+# For more information, refer to our docs: https://www.astronomer.io/docs/astro/cli/develop-project#configure-airflow_settingsyaml-local-development-only
+# For questions, reach out to: https://support.astronomer.io
+# For issues create an issue ticket here: https://github.com/astronomer/astro-cli/issues
+
+airflow:
+  connections:
+    - conn_id: dwh_pgres
+      conn_type: postgres
+      conn_host: 172.17.0.1
+      conn_schema: dwh_warehouse_ecs
+      conn_login: dwh_warehouse_ecs
+      conn_password: postgres-password
+      conn_port: 7432
+  pools:
+    - pool_name:
+      pool_slot:
+      pool_description:
+  variables:
+    - variable_name:
+      variable_value:
+#postgresql+psycopg2://dwh_warehouse_ecs:postgres-password@172.17.0.1:7432/dwh_warehouse_ecs

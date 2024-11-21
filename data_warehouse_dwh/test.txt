@@ -1,0 +1,167 @@
+
+TODO codice:
+
+- extract attraverso URL di ogni csv del parco auto delle regioni
+- loading di essi
+- extract attraverso URL del csv delle provincie/regioni
+- loading di essi
+- loading del json delle spec_car
+- unione di tutti i csv auto e pulizia
+- pulizia csv regioni
+- pulizia json spec
+
+
+------------
+-- CODICE PYTHON TEST
+------------
+
+import psycopg2
+import json
+
+# Connessione al database PostgreSQL
+conn = psycopg2.connect(dbname="your_database", user="your_user", password="your_password", host="localhost")
+cur = conn.cursor()
+
+# Leggi il file JSON
+with open('data.json') as f:
+    data = json.load(f)
+
+# Inserisci ogni oggetto JSON nella tabella
+for record in data:
+    cur.execute(
+        "INSERT INTO people (name, age, city) VALUES (%s, %s, %s)",
+        (record['name'], record['age'], record['city'])
+    )
+    #cur.execute("INSERT INTO raw_car_spec (field_1) VALUES (%s)", [json.dumps(item)])
+
+# Commit delle modifiche e chiusura della connessione
+conn.commit()
+cur.close()
+conn.close()
+
+import json
+import psycopg2
+
+# Connessione al database PostgreSQL
+connection = psycopg2.connect(
+    host="localhost",      # Cambia con il tuo hostname
+    database="my_database", # Cambia con il tuo database
+    user="my_user",         # Cambia con il tuo utente
+    password="my_password"  # Cambia con la tua password
+)
+
+cursor = connection.cursor()
+
+# Leggere il file JSON
+with open("data.json", "r", encoding="utf-8") as file:
+    data = json.load(file)
+
+# Query di inserimento
+insert_query = "INSERT INTO car_data_json (data) VALUES (%s);"
+
+# Iterare sui dati e inserire ogni elemento come una riga separata
+for record_id, record_data in data.items():
+    # Inserisce il singolo oggetto JSON nella colonna `data`
+    cursor.execute(insert_query, [json.dumps(record_data)])
+
+# Commit della transazione
+connection.commit()
+
+# Chiudere la connessione
+cursor.close()
+connection.close()
+
+print("Dati JSON inseriti come righe separate!")
+
+-------
+LOAD CAR SPEC
+-------
+
+@task
+    def load_car_spec():
+        data_path = "include/dataset/cars_test_2.json"
+        postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
+        conn = postgres_hook.get_conn()
+        cur = conn.cursor()
+        with open(data_path, "r") as file:
+            data = json.load(file)
+        '''    
+        for i in data:
+            line = data[i]
+            brand = str(line['Brand'])
+            model = str(line['Model'])
+            
+            # Insert elements in the table
+            cur.execute(
+                "INSERT INTO raw_car_spec (brand, model) VALUES (%s, %s)",
+                (brand, model)
+            )
+        '''
+
+        query = """ INSERT INTO raw_car_spec (dati) VALUES (%s); """
+        
+        
+        #Inserisce i dati in un unica riga e unica colonna 
+        #cur.execute(query, [json.dumps(data)])
+
+        # Inserisce i dati
+        #for item in data:
+        # Converti il dizionario in formato JSON
+            #cur.execute(query, [json.dumps(item)])
+            #cur.execute(query, [item])
+
+        
+        #print(data.items()) #data è un dizionario
+        #print(data.values()) #restituisce tutte le righe
+
+        #Inserisce i dati in un unica colonna ma in più righe
+        for row in data.values():
+            cur.execute(query, [json.dumps(row)])
+        
+        conn.commit()
+
+
+--------
+
+----------
+
+# Pulls the return_value XCOM from "pushing_task"
+    #task_instance = kwargs["task_instance"]
+    #value = task_instance.xcom_pull(task_ids='pushing_task')
+    #print(value)
+
+    '''create_table_1 = SQLExecuteQueryOperator(
+        task_id="create_table_1",
+        conn_id="dwh_pgres",
+        sql=f"CREATE TABLE IF NOT EXISTS raw_table_1 (
+            carid NUMERIC,
+            v_type VARCHAR,
+            dest VARCHAR,
+            use VARCHAR,
+            provincia VARCHAR,
+            make VARCHAR,
+            displacement FLOAT,
+            fuel VARCHAR,
+            engine_power INT,
+            immatricolazione VARCHAR,
+            classe VARCHAR,
+            emissioni NUMERIC,
+            peso INT); ",
+    )'''
+
+
+
+    ----------------------------------
+
+    ----------------------------------
+    In questo momento quello che sto facendo nella prima parte di EL è scaricare tutti i csv del parco circolante e caricarli tutti 
+    in un unica tabella con il comando COPY. 
+    Valutare in seguito se è meglio caricarli in tabelle separate e poi unirle attraverso il comando UNION. 
+    Nei due approcci cambia pesantemente anche il codice, con il secondo bisognerebbe fare un ciclo FOR sui task, 
+    dando in input solo la lista di url iniziale. 
+    Poi il nome dei file salvati viene passato al task di creazione tabella e a quello di loading attraverso gli XCOM. 
+
+    Il secondo approccio funzionerebbe in questo modo: al ciclo for iniziale si da in input la lista di url. Ad ogni iterazione del ciclo,
+    corrispondente con un URL, il task extract prende in input l'url e restituisce il nome del file e il percorso in cui è 
+    stato salvato (quasi sicuramente resources/nome file.csv). Il nome del file verrà preso poi in input dal task di creazione tabella e 
+    da quello di load data, il quale inoltre prenderà in input anche il path dove è stato salvato.
