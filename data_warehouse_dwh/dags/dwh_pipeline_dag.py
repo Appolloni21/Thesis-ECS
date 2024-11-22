@@ -113,7 +113,7 @@ def dwh_pipeline_dag():
     # TASK 8
     @task
     def load_car_spec():
-        data_path = "include/datasets_scraping/cars_test_2.json"
+        data_path = "include/datasets_scraping/cars_v2.json"
         postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
         conn = postgres_hook.get_conn()
         cur = conn.cursor()
@@ -131,10 +131,10 @@ def dwh_pipeline_dag():
 
         conn.commit()
 
-    # extract_1
-    # create_raw_table_1 >> load_data_1() >>
+    #extract_1
+    #create_raw_table_1 >> load_data_1() >>
     create_raw_table_2 >> load_data_2() 
-    # create_raw_table_3 >> load_data_3()
-    # create_car_spec_table >> load_car_spec()
+    #create_raw_table_3 >> load_data_3()
+    #create_car_spec_table >> load_car_spec()
 
 dag = dwh_pipeline_dag()
