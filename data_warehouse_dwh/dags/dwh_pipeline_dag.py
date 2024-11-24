@@ -6,13 +6,14 @@ from airflow.decorators import (
 )
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.operators.python import PythonOperator
+from airflow.utils.helpers import chain
 
 # from airflow.models.baseoperator import chain
 # from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from datetime import datetime
 
-from include.utilities import get_data, DATA_PATHS, DATA_PATHS_2
+from include.utilities import *
 import os, json
 
 
@@ -44,7 +45,6 @@ def dwh_pipeline_dag():
     # TASK 3: load data
     @task
     def load_data_1():
-        # data_path = "resources/parco_circolante_Abruzzo.csv"
         postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
         conn = postgres_hook.get_conn()
         for data_path in DATA_PATHS:
@@ -52,7 +52,6 @@ def dwh_pipeline_dag():
             cur = conn.cursor()
             with open(data_path, "r") as file:
                 cur.copy_expert(
-                    # "COPY raw_car_fleet FROM STDIN WITH CSV HEADER DELIMITER AS ',' QUOTE E'\b' ",
                     "COPY raw_car_fleet FROM STDIN WITH CSV HEADER DELIMITER AS ',' QUOTE '\"' ",
                     file,
                 )
@@ -65,30 +64,41 @@ def dwh_pipeline_dag():
         sql="sql/raw_car_fleet_B.sql",
     )
 
-    # TASK 4: load data
+    # TASK 4B: preprocess data
+    pre_processing_2 = PythonOperator(
+        task_id="pre_processing_2",
+        python_callable=pre_processing,
+    )
+
+    # TASK 5: load data
     @task
     def load_data_2():
-        # data_path = "resources/parco_circolante_Abruzzo.csv"
         postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
         conn = postgres_hook.get_conn()
-        for data_path in DATA_PATHS_2:
-            print(data_path)
-            cur = conn.cursor()
-            with open(data_path, "r") as file:
-                cur.copy_expert(
-                    "COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT CSV, HEADER, DELIMITER ',', QUOTE '\"') ",
-                    file,
-                )
-            conn.commit()
 
-    # TASK 5: create table for regions and provinces
+        for file_name in os.listdir(AIRFLOW_PREPOC_PATH):
+            # Controlla se il file ha estensione .csv
+            if file_name.endswith(".csv"):
+                data_path = os.path.join(AIRFLOW_PREPOC_PATH, file_name)
+                print(data_path)
+                cur = conn.cursor()
+                with open(data_path, "r") as file:
+                    cur.copy_expert(
+                        # Come carattere di escape viene usato il punto e virgola perchè altrimenti da problemi
+                        # "COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT CSV, DELIMITER ',', QUOTE '%', ESCAPE ';') ",
+                        "COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT TEXT, DELIMITER ',') ",
+                        file,
+                    )
+                conn.commit()
+
+    # TASK 6: create table for regions and provinces
     create_raw_table_3 = SQLExecuteQueryOperator(
         task_id="create_raw_table_3",
         conn_id="dwh_pgres",
         sql="sql/raw_regions.sql",
     )
 
-    # TASK 6: load regions and provinces data
+    # TASK 7: load regions and provinces data
     @task
     def load_data_3():
         data_path = "include/gi_comuni_cap.csv"
@@ -103,14 +113,14 @@ def dwh_pipeline_dag():
             )
         conn.commit()
 
-    # TASK 7
+    # TASK 8
     create_car_spec_table = SQLExecuteQueryOperator(
         task_id="create_car_spec_table",
         conn_id="dwh_pgres",
         sql="sql/raw_car_spec_1.sql"
     )
 
-    # TASK 8
+    # TASK 9
     @task
     def load_car_spec():
         data_path = "include/datasets_scraping/cars_v2.json"
@@ -133,8 +143,14 @@ def dwh_pipeline_dag():
 
     #extract_1
     #create_raw_table_1 >> load_data_1() >>
-    create_raw_table_2 >> load_data_2() 
+    #pre_processing_2
+    #pre_processing_2 >> create_raw_table_2 >> load_data_2()
     #create_raw_table_3 >> load_data_3()
     #create_car_spec_table >> load_car_spec()
+
+    chain(  #pre_processing_2, 
+            create_raw_table_2,
+            load_data_2()
+    )
 
 dag = dwh_pipeline_dag()

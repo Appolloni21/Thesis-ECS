@@ -1,5 +1,9 @@
-import requests, zipfile, io
+import requests, zipfile, io, csv, os, subprocess
 
+AIRFLOW_RESOURCE_PATH = "/usr/local/airflow/resources/"
+AIRFLOW_PREPOC_PATH = AIRFLOW_RESOURCE_PATH + "pre_processed/"      #directory containing prepocessed version of raw files
+
+REGIONS_LIST_A = ["Abruzzo", "Basailicata", "Calabria", "Molise", "Sicilia"]
 
 URLS = [
     "https://dati.mit.gov.it/hfs/parco_circolante_Abruzzo.csv.zip",
@@ -50,6 +54,9 @@ DATA_PATHS_2 = [
     "resources/Circolante_Veneto.csv",
 ]
 
+DATA_PATHS_B = ["resources/Circolante_Emilia_pp.csv"]
+
+
 def get_data():
 
     # URL del file ZIP
@@ -91,3 +98,78 @@ def get_data():
             print("Il file scaricato non è un file ZIP valido.")
         except Exception as e:
             print(f"Errore imprevisto: {e}")
+
+
+def pre_processing():
+
+    for file_name in os.listdir(AIRFLOW_RESOURCE_PATH):
+        # Controlla se il file ha estensione .csv
+        if file_name.endswith(".csv"):
+            file_path = os.path.join(AIRFLOW_RESOURCE_PATH, file_name)
+            #print(f"Extended Path: {file_path}")
+
+            #If region is not in that list, csv associated file must be pre processed 
+            if not (get_region_name(file_name) in REGIONS_LIST_A):
+                print(f"Prepocessing in corso: {file_name}")
+
+                output_file = AIRFLOW_PREPOC_PATH + "pp_" + file_name 
+
+                # Apertura del file originale in lettura e del nuovo file in scrittura
+                with open(file_path, "r", encoding="utf-8") as infile, open(
+                    output_file, "w", encoding="utf-8", newline=""
+                ) as outfile:
+                    # Lettura e scrittura del file CSV
+                    reader = csv.reader(
+                        infile, quotechar='"', delimiter=",", quoting=csv.QUOTE_MINIMAL
+                    )
+                    writer = csv.writer(
+                        outfile, quotechar='"', delimiter=",", quoting=csv.QUOTE_MINIMAL
+                    )
+
+                    #Friuli csv file is the only one containing the header and it must be removed
+                    if(get_region_name(file_name) == "Friuli"):
+                        # Salta la prima riga (header o altre informazioni)
+                        next(reader, None)
+
+                    for row in reader:
+                        # Rimozione degli apostrofi da ogni campo della riga
+                        new_row = [field.replace("'", " ") for field in row]
+                        writer.writerow(new_row)
+
+                    print(f"Prepocessed file created: {output_file}")
+                
+                #convert_encoding(output_file, output_file)
+
+
+def get_region_name(file_name):
+    l1 = file_name.split(".")
+    l2 = l1[0].split("_")
+
+    region_name = l2[1]
+    return region_name
+
+
+def convert_encoding(input_file, output_file):
+    source_encoding = "us-ascii"  # Codifica di origine
+    target_encoding = "UTF-8"  # Codifica di destinazione
+    
+    try:
+        # Comando iconv per la conversione della codifica
+        command = [
+            "iconv",
+            "-f",
+            source_encoding,  # Codifica di origine
+            "-t",
+            target_encoding,  # Codifica di destinazione
+            input_file,  # File di input
+            "-o",
+            output_file,  # File di output
+        ]
+
+        # Esecuzione del comando
+        subprocess.run(command, check=True)
+        print(f"Conversione completata! File salvato in: {output_file}")
+    except subprocess.CalledProcessError as e:
+        print(f"Errore durante la conversione: {e}")
+    except FileNotFoundError:
+        print("Il comando iconv non è installato sul sistema.")

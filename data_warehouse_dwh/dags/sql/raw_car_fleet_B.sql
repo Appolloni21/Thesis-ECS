@@ -7,10 +7,10 @@ CREATE TABLE IF NOT EXISTS raw_car_fleet_B (
             utilization VARCHAR,
             provincia VARCHAR,
             make VARCHAR,
-            displacement FLOAT,
+            displacement VARCHAR, --FLOAT
             fuel VARCHAR,
-            engine_power INT,
+            engine_power VARCHAR, --INT
             immatricolazione VARCHAR,
             classe VARCHAR,
-            emissioni NUMERIC,
-            peso INT); 
+            emissioni VARCHAR, --NUMERIC
+            peso VARCHAR); --INT

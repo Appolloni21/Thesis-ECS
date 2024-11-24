@@ -165,3 +165,17 @@ LOAD CAR SPEC
     corrispondente con un URL, il task extract prende in input l'url e restituisce il nome del file e il percorso in cui è 
     stato salvato (quasi sicuramente resources/nome file.csv). Il nome del file verrà preso poi in input dal task di creazione tabella e 
     da quello di load data, il quale inoltre prenderà in input anche il path dove è stato salvato.
+
+
+    -------------------
+    ------------------
+
+    "COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT CSV, DELIMITER ',', QUOTE '\"', ESCAPE ';') ",
+    #"COPY raw_car_fleet_b FROM STDIN WITH CSV DELIMITER AS ',' QUOTE '\"' ",
+    # "COPY raw_car_fleet FROM STDIN WITH CSV HEADER DELIMITER AS ',' QUOTE E'\b' ",
+
+    -------------
+    PGADMIN COMMANDS
+
+    --command " "\\copy public.raw_car_fleet_b (carid, v_type, dest, utilization, provincia, make, displacement, fuel, engine_power, immatricolazione, classe, emissioni, peso) FROM '<STORAGE_DIR>/Circolante_Toscana.csv' 
+    DELIMITER ',' NULL '\"null\"';""
