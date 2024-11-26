@@ -141,7 +141,7 @@ def dwh_pipeline_dag():
             #load_data_3(),
             #create_car_spec_table,
             #load_car_spec(),
-            insert_temp_table,
+            #insert_temp_table,
             cleaning_temp_table
 
     )

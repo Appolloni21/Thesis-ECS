@@ -10,7 +10,7 @@ WITH dateregistration_temp AS (
             ELSE
                 NULL
         END AS date_part
-    FROM {{ source('dwh_car_fleet', 'car_valle_aosta') }}
+    FROM {{ source('dwh_car_fleet', 'raw_car_circulating') }}
     WHERE immatricolazione IS NOT NULL
 )
 SELECT
