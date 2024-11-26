@@ -76,20 +76,23 @@ def dwh_pipeline_dag():
         postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
         conn = postgres_hook.get_conn()
 
-        for file_name in os.listdir(AIRFLOW_PREPOC_PATH):
+        for file_name in os.listdir(DATASETS_2019_DIR):
             # Controlla se il file ha estensione .csv
-            if file_name.endswith(".csv"):
-                data_path = os.path.join(AIRFLOW_PREPOC_PATH, file_name)
-                print(data_path)
+            data_path = os.path.join(DATASETS_2019_DIR, file_name)
+            print(f"Loading: " + f"{data_path}")
+            if file_name.endswith("Friuli.csv"):
+                query = "COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT CSV, HEADER, DELIMITER ',', QUOTE '\"') "
+                # postgreSQL_importing(query, connection, data_path)
                 cur = conn.cursor()
-                with open(data_path, "r") as file:
-                    cur.copy_expert(
-                        # Come carattere di escape viene usato il punto e virgola perchè altrimenti da problemi
-                        # "COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT CSV, DELIMITER ',', QUOTE '%', ESCAPE ';') ",
-                        "COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT TEXT, DELIMITER ',') ",
-                        file,
-                    )
-                conn.commit()
+                try:
+                    with open(data_path, "r") as file: 
+                        cur.copy_expert(query,file)
+                    conn.commit()
+                except Exception as e:
+                    print(f"Errore durante il caricamento: {e}")
+            else:
+                query = "COPY raw_car_fleet_B FROM STDIN WITH (FORMAT CSV, DELIMITER ',', QUOTE '\"') "
+                postgreSQL_importing(query,conn,data_path)
 
     # TASK 6: create table for regions and provinces
     create_raw_table_3 = SQLExecuteQueryOperator(
@@ -141,16 +144,24 @@ def dwh_pipeline_dag():
 
         conn.commit()
 
-    #extract_1
-    #create_raw_table_1 >> load_data_1() >>
-    #pre_processing_2
-    #pre_processing_2 >> create_raw_table_2 >> load_data_2()
-    #create_raw_table_3 >> load_data_3()
-    #create_car_spec_table >> load_car_spec()
 
-    chain(  #pre_processing_2, 
-            create_raw_table_2,
-            load_data_2()
+    chain(  #extract_1,
+            #create_raw_table_1,
+            #pre_processing_2, 
+            #create_raw_table_2,
+            load_data_2(),
+            #create_raw_table_3,
+            #load_data_3(),
+            #create_car_spec_table,
+            #load_car_spec()
     )
 
 dag = dwh_pipeline_dag()
+
+# veneto, friuli, emilia, campania
+
+
+# "COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT CSV, DELIMITER ',', QUOTE '\"') "
+# SI: Toscana, Lazio, Emilia, Liguria, Marche, Trentino, Umbria, Aosta, Veneto
+# No: Friuli (eliminare header), Campania, Lombardia, Piemonte, Puglia, Sardegna
+# (emilia forse bisogna eliminare gli apostrofi)

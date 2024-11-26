@@ -167,12 +167,17 @@ LOAD CAR SPEC
     da quello di load data, il quale inoltre prenderà in input anche il path dove è stato salvato.
 
 
+    I dataset di Campania, Lombardia, Piemonte, Puglia e Sardegna vengono caricati correttamente se salvati in locale e montati sul volume, se invece
+    si usa la funzione get_data e vengono salvati direttamente nel container iniziano a dare problemi. La query SQL utilizzata è la seguente:
+    # "COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT CSV, DELIMITER ',', QUOTE '\"') "
+
     -------------------
     ------------------
 
     "COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT CSV, DELIMITER ',', QUOTE '\"', ESCAPE ';') ",
     #"COPY raw_car_fleet_b FROM STDIN WITH CSV DELIMITER AS ',' QUOTE '\"' ",
     # "COPY raw_car_fleet FROM STDIN WITH CSV HEADER DELIMITER AS ',' QUOTE E'\b' ",
+    #"COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT TEXT, DELIMITER ',') ",
 
     -------------
     PGADMIN COMMANDS

@@ -1,7 +1,10 @@
 import requests, zipfile, io, csv, os, subprocess
 
-AIRFLOW_RESOURCE_PATH = "/usr/local/airflow/resources/"
+AIRFLOW_PATH = "/usr/local/airflow/"
+AIRFLOW_RESOURCE_PATH = AIRFLOW_PATH + "resources/"
 AIRFLOW_PREPOC_PATH = AIRFLOW_RESOURCE_PATH + "pre_processed/"      #directory containing prepocessed version of raw files
+
+DATASETS_2019_DIR = AIRFLOW_PATH + "include/datasets_2019/"
 
 REGIONS_LIST_A = ["Abruzzo", "Basailicata", "Calabria", "Molise", "Sicilia"]
 
@@ -173,3 +176,13 @@ def convert_encoding(input_file, output_file):
         print(f"Errore durante la conversione: {e}")
     except FileNotFoundError:
         print("Il comando iconv non è installato sul sistema.")
+
+
+def postgreSQL_importing(query, conn, data_path):
+    cur = conn.cursor()
+    try:
+        with open(data_path, "r") as file: 
+            cur.copy_expert(query,file)
+        conn.commit()
+    except Exception as e:
+        print(f"Errore durante il caricamento: {e}")
