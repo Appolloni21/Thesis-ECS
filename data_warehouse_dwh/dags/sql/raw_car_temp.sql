@@ -1,16 +1,16 @@
 
 -- create car schema
-CREATE TABLE IF NOT EXISTS raw_car_fleet_B (
+CREATE TABLE IF NOT EXISTS raw_car_temp(
             carid NUMERIC,
             v_type VARCHAR,
             dest VARCHAR,
             utilization VARCHAR,
             provincia VARCHAR,
             make VARCHAR,
-            displacement VARCHAR, --FLOAT
+            displacement FLOAT, 
             fuel VARCHAR,
-            engine_power VARCHAR, --INT
+            engine_power NUMERIC, 
             immatricolazione VARCHAR,
             classe VARCHAR,
-            emissioni VARCHAR, --NUMERIC
-            peso VARCHAR); --INT
+            emissioni NUMERIC, 
+            peso NUMERIC); 

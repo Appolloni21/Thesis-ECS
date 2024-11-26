@@ -126,6 +126,7 @@ def get_region_name(file_name):
 
 
 def postgreSQL_importing(query, conn, data_path):
+    print(f"Loading: " + f"{data_path}")
     cur = conn.cursor()
     try:
         with open(data_path, "r") as file: 

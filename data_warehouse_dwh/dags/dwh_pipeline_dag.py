@@ -35,55 +35,51 @@ def dwh_pipeline_dag():
         python_callable=get_data,
     )
 
-    # TASK 2: create veichle table 1
+    # TASK 2: create circulating car table 1
     create_raw_table_1 = SQLExecuteQueryOperator(
         task_id="create_raw_table_1",
         conn_id="dwh_pgres",
-        sql="sql/raw_car_fleet_A.sql",
+        sql="sql/raw_car_circulating.sql",
     )
 
    
-    # TASK 3: create veichle table 2
+    # TASK 2b: create circulating car temp table
     create_raw_table_2 = SQLExecuteQueryOperator(
         task_id="create_raw_table_2",
         conn_id="dwh_pgres",
-        sql="sql/raw_car_fleet_B.sql",
+        sql="sql/raw_car_temp.sql",
     )
 
-    # TASK 3B: preprocess data
-    pre_processing_2 = PythonOperator(
-        task_id="pre_processing_2",
-        python_callable=pre_processing,
-    )
 
-    # TASK 4: load data
+    # TASK 3: load data
     @task
-    def load_data_circulatingCars():
+    def load_data_car_circulating():
         postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
         conn = postgres_hook.get_conn()
 
         for file_name in os.listdir(DATASETS_2019_DIR):
             # Controlla se il file ha estensione .csv
             data_path = os.path.join(DATASETS_2019_DIR, file_name)
-            print(f"Loading: " + f"{file_name}")
             if file_name.endswith("Friuli.csv"):
-                query = "COPY raw_car_fleet_B FROM STDIN WITH (FORMAT CSV, HEADER, DELIMITER ',', QUOTE '\"') "
+                query = "COPY raw_car_temp FROM STDIN WITH (FORMAT CSV, HEADER, DELIMITER ',', QUOTE '\"') "
                 postgreSQL_importing(query, conn, data_path)
-            elif(get_region_name(file_name) in REGIONS_A):
-                query = "COPY raw_car_fleet FROM STDIN WITH CSV HEADER DELIMITER AS ',' QUOTE '\"' "
+            #elif(get_region_name(file_name) in REGIONS_A):
+            elif(file_name.endswith("Abruzzo.csv")):
+                query = "COPY raw_car_circulating FROM STDIN WITH CSV DELIMITER AS ',' QUOTE '\"' "
                 postgreSQL_importing(query,conn,data_path)
-            else:
-                query = "COPY raw_car_fleet_B FROM STDIN WITH (FORMAT CSV, DELIMITER ',', QUOTE '\"') "
+            #else:
+            elif(file_name.endswith("Puglia.csv")):
+                query = "COPY raw_car_temp FROM STDIN WITH (FORMAT CSV, DELIMITER ',', QUOTE '\"') "
                 postgreSQL_importing(query,conn,data_path)
 
-    # TASK 5: create table for regions and provinces
+    # TASK 4: create table for regions and provinces
     create_raw_table_3 = SQLExecuteQueryOperator(
         task_id="create_raw_table_3",
         conn_id="dwh_pgres",
         sql="sql/raw_regions.sql",
     )
 
-    # TASK 6: load regions and provinces data
+    # TASK 5: load regions and provinces data
     @task
     def load_data_3():
         data_path = "include/gi_comuni_cap.csv"
@@ -97,14 +93,14 @@ def dwh_pipeline_dag():
             )
         conn.commit()
 
-    # TASK 7: create car spec table
+    # TASK 6: create car spec table
     create_car_spec_table = SQLExecuteQueryOperator(
         task_id="create_car_spec_table",
         conn_id="dwh_pgres",
         sql="sql/raw_car_spec_1.sql"
     )
 
-    # TASK 8: load car spec table
+    # TASK 7: load car spec table
     @task
     def load_car_spec():
         data_path = "include/datasets_scraping/car_spec.json"
@@ -125,15 +121,29 @@ def dwh_pipeline_dag():
 
         conn.commit()
 
+    insert_temp_table = SQLExecuteQueryOperator(
+        task_id="insert_temp_table",
+        conn_id="dwh_pgres",
+        sql="sql/insert_temp_table.sql",
+    )
+
+    cleaning_temp_table = SQLExecuteQueryOperator(
+        task_id="cleaning_temp_table",
+        conn_id="dwh_pgres",
+        sql="sql/cleaning_temp_table.sql",
+    )
 
     chain(  #extract_1,
             #create_raw_table_1,
             #create_raw_table_2,
-            #load_data_circulatingCars(),
+            #load_data_car_circulating(),
             #create_raw_table_3,
-            load_data_3(),
+            #load_data_3(),
             #create_car_spec_table,
-            load_car_spec()
+            #load_car_spec(),
+            insert_temp_table,
+            cleaning_temp_table
+
     )
 
 dag = dwh_pipeline_dag()
