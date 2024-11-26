@@ -39,7 +39,7 @@ def dwh_pipeline_dag():
     create_raw_table_1 = SQLExecuteQueryOperator(
         task_id="create_raw_table_1",
         conn_id="dwh_pgres",
-        sql="sql/raw_circolante_2019.sql",
+        sql="sql/raw_car_fleet_A.sql",
     )
 
    
@@ -58,7 +58,7 @@ def dwh_pipeline_dag():
 
     # TASK 4: load data
     @task
-    def load_data_cars():
+    def load_data_circulatingCars():
         postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
         conn = postgres_hook.get_conn()
 
@@ -89,7 +89,6 @@ def dwh_pipeline_dag():
         data_path = "include/gi_comuni_cap.csv"
         postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
         conn = postgres_hook.get_conn()
-
         cur = conn.cursor()
         with open(data_path, "r") as file:
             cur.copy_expert(
@@ -108,7 +107,7 @@ def dwh_pipeline_dag():
     # TASK 8: load car spec table
     @task
     def load_car_spec():
-        data_path = "include/datasets_scraping/cars_v2.json"
+        data_path = "include/datasets_scraping/car_spec.json"
         postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
         conn = postgres_hook.get_conn()
         cur = conn.cursor()
@@ -130,11 +129,11 @@ def dwh_pipeline_dag():
     chain(  #extract_1,
             #create_raw_table_1,
             #create_raw_table_2,
-            load_data_cars(),
+            #load_data_circulatingCars(),
             #create_raw_table_3,
-            #load_data_3(),
+            load_data_3(),
             #create_car_spec_table,
-            #load_car_spec()
+            load_car_spec()
     )
 
 dag = dwh_pipeline_dag()

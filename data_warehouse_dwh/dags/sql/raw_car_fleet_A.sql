@@ -1,4 +1,4 @@
--- create parco circolante schema
+-- create circulating cars table A
 CREATE TABLE IF NOT EXISTS raw_car_fleet (
             v_type VARCHAR,
             dest VARCHAR,
