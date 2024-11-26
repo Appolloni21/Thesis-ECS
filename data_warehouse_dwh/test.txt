@@ -184,3 +184,32 @@ LOAD CAR SPEC
 
     --command " "\\copy public.raw_car_fleet_b (carid, v_type, dest, utilization, provincia, make, displacement, fuel, engine_power, immatricolazione, classe, emissioni, peso) FROM '<STORAGE_DIR>/Circolante_Toscana.csv' 
     DELIMITER ',' NULL '\"null\"';""
+
+
+    -------------
+    encoding
+    ----------------
+    ef convert_encoding(input_file, output_file):
+    source_encoding = "us-ascii"  # Codifica di origine
+    target_encoding = "UTF-8"  # Codifica di destinazione
+    
+    try:
+        # Comando iconv per la conversione della codifica
+        command = [
+            "iconv",
+            "-f",
+            source_encoding,  # Codifica di origine
+            "-t",
+            target_encoding,  # Codifica di destinazione
+            input_file,  # File di input
+            "-o",
+            output_file,  # File di output
+        ]
+
+        # Esecuzione del comando
+        subprocess.run(command, check=True)
+        print(f"Conversione completata! File salvato in: {output_file}")
+    except subprocess.CalledProcessError as e:
+        print(f"Errore durante la conversione: {e}")
+    except FileNotFoundError:
+        print("Il comando iconv non è installato sul sistema.")

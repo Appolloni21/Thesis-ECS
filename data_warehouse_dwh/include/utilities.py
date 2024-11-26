@@ -1,4 +1,4 @@
-import requests, zipfile, io, csv, os, subprocess
+import requests, zipfile, io, csv, os
 
 AIRFLOW_PATH = "/usr/local/airflow/"
 AIRFLOW_RESOURCE_PATH = AIRFLOW_PATH + "resources/"
@@ -6,7 +6,7 @@ AIRFLOW_PREPOC_PATH = AIRFLOW_RESOURCE_PATH + "pre_processed/"      #directory c
 
 DATASETS_2019_DIR = AIRFLOW_PATH + "include/datasets_2019/"
 
-REGIONS_LIST_A = ["Abruzzo", "Basailicata", "Calabria", "Molise", "Sicilia"]
+REGIONS_A = ["Abruzzo", "Basailicata", "Calabria", "Molise", "Sicilia"]
 
 URLS = [
     "https://dati.mit.gov.it/hfs/parco_circolante_Abruzzo.csv.zip",
@@ -30,34 +30,6 @@ URLS = [
     "https://dati.mit.gov.it/hfs/parco_circolante_ValleAosta.csv.zip",
     "https://dati.mit.gov.it/hfs/parco_circolante_Veneto.csv.zip",
 ]
-
-DATA_PATHS = [
-    "resources/Circolante_Abruzzo.csv",
-    "resources/Circolante_Basailicata.csv",
-    "resources/Circolante_Calabria.csv",
-    "resources/Circolante_Molise.csv",
-    "resources/Circolante_Sicilia.csv",
-]
-
-DATA_PATHS_2 = [
-    "resources/Circolante_Campania.csv",
-    "resources/Circolante_Emilia.csv",
-    "resources/Circolante_Friuli.csv",
-    "resources/Circolante_Lazio.csv",
-    "resources/Circolante_Liguria.csv",
-    "resources/Circolante_Lombardia.csv",
-    "resources/Circolante_Marche.csv",
-    "resources/Circolante_Piemonte.csv",
-    "resources/Circolante_Puglia.csv",
-    "resources/Circolante_Sardegna.csv",
-    "resources/Circolante_Toscana.csv",
-    "resources/Circolante_Trentino.csv",
-    "resources/Circolante_Umbria.csv",
-    "resources/Circolante_Valle_Aosta.csv",
-    "resources/Circolante_Veneto.csv",
-]
-
-DATA_PATHS_B = ["resources/Circolante_Emilia_pp.csv"]
 
 
 def get_data():
@@ -112,7 +84,7 @@ def pre_processing():
             #print(f"Extended Path: {file_path}")
 
             #If region is not in that list, csv associated file must be pre processed 
-            if not (get_region_name(file_name) in REGIONS_LIST_A):
+            if not (get_region_name(file_name) in REGIONS_A):
                 print(f"Prepocessing in corso: {file_name}")
 
                 output_file = AIRFLOW_PREPOC_PATH + "pp_" + file_name 
@@ -141,7 +113,6 @@ def pre_processing():
 
                     print(f"Prepocessed file created: {output_file}")
                 
-                #convert_encoding(output_file, output_file)
 
 
 def get_region_name(file_name):
@@ -152,30 +123,6 @@ def get_region_name(file_name):
     return region_name
 
 
-def convert_encoding(input_file, output_file):
-    source_encoding = "us-ascii"  # Codifica di origine
-    target_encoding = "UTF-8"  # Codifica di destinazione
-    
-    try:
-        # Comando iconv per la conversione della codifica
-        command = [
-            "iconv",
-            "-f",
-            source_encoding,  # Codifica di origine
-            "-t",
-            target_encoding,  # Codifica di destinazione
-            input_file,  # File di input
-            "-o",
-            output_file,  # File di output
-        ]
-
-        # Esecuzione del comando
-        subprocess.run(command, check=True)
-        print(f"Conversione completata! File salvato in: {output_file}")
-    except subprocess.CalledProcessError as e:
-        print(f"Errore durante la conversione: {e}")
-    except FileNotFoundError:
-        print("Il comando iconv non è installato sul sistema.")
 
 
 def postgreSQL_importing(query, conn, data_path):

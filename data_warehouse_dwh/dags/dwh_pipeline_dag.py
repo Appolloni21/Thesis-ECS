@@ -35,73 +35,55 @@ def dwh_pipeline_dag():
         python_callable=get_data,
     )
 
-    # TASK 2: create main raw table
+    # TASK 2: create veichle table 1
     create_raw_table_1 = SQLExecuteQueryOperator(
         task_id="create_raw_table_1",
         conn_id="dwh_pgres",
         sql="sql/raw_circolante_2019.sql",
     )
 
-    # TASK 3: load data
-    @task
-    def load_data_1():
-        postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
-        conn = postgres_hook.get_conn()
-        for data_path in DATA_PATHS:
-            print(data_path)
-            cur = conn.cursor()
-            with open(data_path, "r") as file:
-                cur.copy_expert(
-                    "COPY raw_car_fleet FROM STDIN WITH CSV HEADER DELIMITER AS ',' QUOTE '\"' ",
-                    file,
-                )
-            conn.commit()
-
-    # TASK 4: create main raw table
+   
+    # TASK 3: create veichle table 2
     create_raw_table_2 = SQLExecuteQueryOperator(
         task_id="create_raw_table_2",
         conn_id="dwh_pgres",
         sql="sql/raw_car_fleet_B.sql",
     )
 
-    # TASK 4B: preprocess data
+    # TASK 3B: preprocess data
     pre_processing_2 = PythonOperator(
         task_id="pre_processing_2",
         python_callable=pre_processing,
     )
 
-    # TASK 5: load data
+    # TASK 4: load data
     @task
-    def load_data_2():
+    def load_data_cars():
         postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
         conn = postgres_hook.get_conn()
 
         for file_name in os.listdir(DATASETS_2019_DIR):
             # Controlla se il file ha estensione .csv
             data_path = os.path.join(DATASETS_2019_DIR, file_name)
-            print(f"Loading: " + f"{data_path}")
+            print(f"Loading: " + f"{file_name}")
             if file_name.endswith("Friuli.csv"):
-                query = "COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT CSV, HEADER, DELIMITER ',', QUOTE '\"') "
-                # postgreSQL_importing(query, connection, data_path)
-                cur = conn.cursor()
-                try:
-                    with open(data_path, "r") as file: 
-                        cur.copy_expert(query,file)
-                    conn.commit()
-                except Exception as e:
-                    print(f"Errore durante il caricamento: {e}")
+                query = "COPY raw_car_fleet_B FROM STDIN WITH (FORMAT CSV, HEADER, DELIMITER ',', QUOTE '\"') "
+                postgreSQL_importing(query, conn, data_path)
+            elif(get_region_name(file_name) in REGIONS_A):
+                query = "COPY raw_car_fleet FROM STDIN WITH CSV HEADER DELIMITER AS ',' QUOTE '\"' "
+                postgreSQL_importing(query,conn,data_path)
             else:
                 query = "COPY raw_car_fleet_B FROM STDIN WITH (FORMAT CSV, DELIMITER ',', QUOTE '\"') "
                 postgreSQL_importing(query,conn,data_path)
 
-    # TASK 6: create table for regions and provinces
+    # TASK 5: create table for regions and provinces
     create_raw_table_3 = SQLExecuteQueryOperator(
         task_id="create_raw_table_3",
         conn_id="dwh_pgres",
         sql="sql/raw_regions.sql",
     )
 
-    # TASK 7: load regions and provinces data
+    # TASK 6: load regions and provinces data
     @task
     def load_data_3():
         data_path = "include/gi_comuni_cap.csv"
@@ -116,14 +98,14 @@ def dwh_pipeline_dag():
             )
         conn.commit()
 
-    # TASK 8
+    # TASK 7: create car spec table
     create_car_spec_table = SQLExecuteQueryOperator(
         task_id="create_car_spec_table",
         conn_id="dwh_pgres",
         sql="sql/raw_car_spec_1.sql"
     )
 
-    # TASK 9
+    # TASK 8: load car spec table
     @task
     def load_car_spec():
         data_path = "include/datasets_scraping/cars_v2.json"
@@ -147,9 +129,8 @@ def dwh_pipeline_dag():
 
     chain(  #extract_1,
             #create_raw_table_1,
-            #pre_processing_2, 
             #create_raw_table_2,
-            load_data_2(),
+            load_data_cars(),
             #create_raw_table_3,
             #load_data_3(),
             #create_car_spec_table,
@@ -157,11 +138,3 @@ def dwh_pipeline_dag():
     )
 
 dag = dwh_pipeline_dag()
-
-# veneto, friuli, emilia, campania
-
-
-# "COPY raw_car_fleet_B FROM STDIN WITH ( FORMAT CSV, DELIMITER ',', QUOTE '\"') "
-# SI: Toscana, Lazio, Emilia, Liguria, Marche, Trentino, Umbria, Aosta, Veneto
-# No: Friuli (eliminare header), Campania, Lombardia, Piemonte, Puglia, Sardegna
-# (emilia forse bisogna eliminare gli apostrofi)
