@@ -7,3 +7,4 @@ sources:
     tables:
       - name: raw_car_circulating
       - name: raw_regions
+      - name: raw_car_spec
