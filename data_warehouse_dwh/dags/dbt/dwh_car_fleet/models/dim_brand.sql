@@ -7,13 +7,11 @@ WITH parsed_data AS (
 ),
 temp_brands AS (
     SELECT DISTINCT
-        {{ dbt_utils.generate_surrogate_key(['brand']) }} AS brand_id,
-        brand AS brand,
+        brand AS brand_id,
         model AS model
     FROM parsed_data
 )
 SELECT
     brand_id::TEXT,
-    brand::TEXT,
     model::TEXT
 FROM temp_brands

@@ -213,3 +213,13 @@ LOAD CAR SPEC
         print(f"Errore durante la conversione: {e}")
     except FileNotFoundError:
         print("Il comando iconv non è installato sul sistema.")
+
+
+
+----------------
+SQL Query
+------------------
+select distinct province as fct_province 
+from dim_province dp
+INNER JOIN raw_car_circulating rcc 
+ON LOWER(rcc.provincia)=LOWER(dp.province)
