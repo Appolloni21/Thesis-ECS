@@ -7,7 +7,7 @@ WITH parsed_data AS (
 ),
 temp_brands AS (
     SELECT DISTINCT
-        brand AS brand_id,
+        UPPER(brand) AS brand_id,
         model AS model
     FROM parsed_data
 )

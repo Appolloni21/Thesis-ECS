@@ -1,6 +1,6 @@
 WITH fct_car_temp AS(
     SELECT
-        immatricolazione as datereg_id,
+        TO_DATE(immatricolazione, 'DD/MM/YYYY') as datereg_id,
         make AS brand_id,
         provincia as province_id,
         engine_power as engine_power,
@@ -9,17 +9,22 @@ WITH fct_car_temp AS(
         emissioni as emissions,
         peso as weight_mass
     FROM {{ source('dwh_car_fleet', 'raw_car_circulating') }}
+    WHERE dest='AUTOVETTURA PER TRASPORTO DI PERSONE' AND make IS NOT NULL AND immatricolazione IS NOT NULL
 )
 SELECT
-    dt.datereg_id,
-    dbr.brand_id,
-    dp.province_id,
+--    dtr.datereg_id,
+--   dbr.brand_id,
+--    dpv.province_id,
+    ROW_NUMBER() OVER () AS car_id,
+    datereg_id,
+    province_id,
+    brand_id,
     engine_power,
     displacement,
     fuel_type,
     emissions,
     weight_mass
 FROM fct_car_temp fc
-INNER JOIN {{ ref('dim_datereg') }} dt ON fc.datereg_id = dt.datereg_id
-INNER JOIN {{ ref('dim_brand')}} dbr ON fc.brand_id = dbr.brand_id
-INNER JOIN {{ ref('dim_province')}} dp ON fc.province_id = dp.province_id
+--INNER JOIN {{ ref('dim_datereg') }} dtr ON fc.datereg_id = dtr.datereg_id
+--INNER JOIN {{ ref('dim_brand')}} dbr ON fc.brand_id = dbr.brand_id
+--INNER JOIN {{ ref('dim_province')}} dpv ON fc.province_id = dpv.province_id
