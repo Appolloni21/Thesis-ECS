@@ -139,10 +139,10 @@ def dwh_pipeline_dag():
             #load_data_car_circulating(),
             #create_raw_table_3,
             #load_data_3(),
-            #create_car_spec_table,
-            #load_car_spec(),
+            create_car_spec_table,
+            load_car_spec(),
             #insert_temp_table,
-            cleaning_temp_table
+            #cleaning_temp_table
 
     )
 

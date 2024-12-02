@@ -1,7 +1,11 @@
 WITH fct_car_temp AS(
     SELECT
         TO_DATE(immatricolazione, 'DD/MM/YYYY') as datereg_id,
-        make AS brand_id,
+        CASE 
+            WHEN make='FIAT - INNOCENTI' THEN 'FIAT'
+            WHEN make='LANCIA - AUTOBIANCHI' THEN 'LANCIA'
+            ELSE make
+        END AS brand_id,
         provincia as province_id,
         engine_power as engine_power,
         displacement as displacement,
@@ -17,11 +21,11 @@ SELECT
 --    dpv.province_id,
     ROW_NUMBER() OVER () AS car_id,
     datereg_id,
-    province_id,
-    brand_id,
+    province_id::TEXT,
+    brand_id:TEXT,
     engine_power,
     displacement,
-    fuel_type,
+    fuel_type::TEXT,
     emissions,
     weight_mass
 FROM fct_car_temp fc

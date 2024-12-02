@@ -1,19 +1,4 @@
-/* BASE 1
-
-SELECT
-id as vid,
-(dati ->> 'Brand') AS brand,
-dati ->> 'Model' AS model,
-regexp_replace((dati ->> 'CO2 emissions'), '[^\d].*', '', 'g')::NUMERIC AS emissions,   
-dati ->> 'Fuel Type' AS fuel_type,
-regexp_replace((dati ->> 'Power'), '[^\d].*', '', 'g')::NUMERIC AS engine_power,        
-regexp_replace((dati ->> 'Kerb Weight'), '[^\d].*', '', 'g')::NUMERIC as kerb_weight    
-FROM raw_car_spec
-order by vid
-*/
-
-/* BASE 2 */
-
+WITH temp_spec AS (
 SELECT
 id as vid,
 UPPER(dati ->> 'Brand') AS brand,
@@ -40,4 +25,47 @@ CASE
     WHEN (dati ->> 'CO2 emissions') IS NOT NULL THEN regexp_replace((dati ->> 'CO2 emissions'), '[^\d].*', '', 'g')::NUMERIC
     WHEN (dati ->> 'CO2 emissions (WLTC)') IS NOT NULL THEN regexp_replace((dati ->> 'CO2 emissions (WLTC)'), '[^\d].*', '', 'g')::NUMERIC
 END AS CO2_emissions
-FROM raw_car_spec
+FROM {{ source('dwh_car_fleet', 'raw_car_spec') }}
+),
+report AS (
+SELECT 
+    fcc.car_id AS car_id,
+    fcc.datereg_id AS datereg_id,
+    fcc.province_id AS province_id,
+    fcc.brand_id AS brand_id,
+    ts.model AS model_spec,
+    fcc.engine_power AS engine_power_id,
+    fcc.displacement AS displacement_id,
+    fcc.fuel_type AS fuel_type_id,
+    fcc.emissions AS CO2_emissions_id,
+    fcc.weight_mass AS weight_mass_id
+    --ROW_NUMBER() OVER (PARTITION BY fcc.car_id ORDER BY fcc.datereg_id) AS rn
+FROM {{ ref('fct_car') }} fcc
+INNER JOIN temp_spec ts ON brand_id = ts.brand 
+    AND fcc.fuel_type = ts.fuel_type 
+    AND fcc.engine_power = ts.engine_power 
+)
+SELECT 
+    car_id,
+    datereg_id,
+    province_id,
+    brand_id,
+    model_spec,
+    engine_power_id,
+    displacement_id,
+    fuel_type_id,
+    CO2_emissions_id,
+    weight_mass_id
+FROM report
+GROUP BY car_id,
+    datereg_id,
+    province_id,
+    brand_id,
+    model_spec,
+    engine_power_id,
+    displacement_id,
+    fuel_type_id,
+    CO2_emissions_id,
+    weight_mass_id
+--WHERE rn = 1
+
