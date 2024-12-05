@@ -1,3 +1,5 @@
+-- TESTING ONLY
+
 WITH temp_spec AS (
 SELECT
 id as vid,
