@@ -226,21 +226,3 @@ ON LOWER(rcc.provincia)=LOWER(dp.province)
 
 
 -----------------
-------------------
-
-"CO2 emissions",                                        #attributo base
-    "CO2 emissions (CNG)",
-    "CO2 emissions (CNG) (NEDC)",
-    "CO2 emissions (CNG) (NEDC, WLTP equivalent)",
-    "CO2 emissions (CNG) (WLTP)",
-    "CO2 emissions (EPA)",                              #compare sempre da solo {4937}            
-    "CO2 emissions (Ethanol - E85)",                    #compare sempre insieme a attr base {10347}
-    "CO2 emissions (Ethanol - E85) (NEDC)",             #compare sempre insieme ad attr (NEDC) {11524}
-    "CO2 emissions (LPG)",
-    "CO2 emissions (LPG) (NEDC)",
-    "CO2 emissions (LPG) (NEDC, WLTP equivalent)",
-    "CO2 emissions (LPG) (WLTP)",
-    "CO2 emissions (NEDC)",
-    "CO2 emissions (NEDC, WLTP equivalent)",
-    "CO2 emissions (WLTC)",                             #compare sempre da solo
-    "CO2 emissions (WLTP)",                             #compare da solo, oppure con attr base oppure insieme ad attr NEDC                     
