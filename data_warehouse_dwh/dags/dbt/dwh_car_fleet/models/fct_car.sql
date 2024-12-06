@@ -1,5 +1,6 @@
 WITH fct_car_temp AS(
     SELECT
+        ROW_NUMBER() OVER () AS car_id,
         TO_DATE(immatricolazione, 'DD/MM/YYYY') as datereg_id,
         CASE 
             WHEN make='FIAT - INNOCENTI' THEN 'FIAT'
@@ -83,7 +84,8 @@ stg_car_spec AS (
     END AS co2_emissions
     FROM {{ source('dwh_car_fleet', 'raw_car_spec') }}
 )
-SELECT
+SELECT DISTINCT ON(fcc.car_id) --308393 match
+    fcc.car_id,
     fcc.datereg_id,
     fcc.brand_id,
     scs.model,
@@ -94,7 +96,7 @@ SELECT
     CASE
         WHEN fcc.co2_emissions IS NULL THEN scs.co2_emissions
         ELSE fcc.co2_emissions
-    END AS co2_emissions
+    END AS co2_emissions,
     fcc.kerb_weight
 FROM fct_car_temp fcc 
 INNER JOIN stg_car_spec scs ON fcc.brand_id = scs.brand AND fcc.fuel_type = scs.fuel_type 
@@ -102,8 +104,10 @@ INNER JOIN stg_car_spec scs ON fcc.brand_id = scs.brand AND fcc.fuel_type = scs.
                             AND fcc.engine_displacement = scs.engine_displacement   --1337713 match
                             --AND fcc.kerb_weight = scs.kerb_weight                   --26 match
                             --AND fcc.co2_emissions = scs.co2_emissions                --0 match
-
-
+--ORDER BY fcc.car_id
+--INNER JOIN {{ ref('dim_datereg') }} dtr ON fc.datereg_id = dtr.datereg_id         --con questi ci mette 29min, troppo
+--INNER JOIN {{ ref('dim_brand')}} dbr ON fc.brand_id = dbr.brand_id
+--INNER JOIN {{ ref('dim_province')}} dpv ON fc.province_id = dpv.province_id       
 
 
 
