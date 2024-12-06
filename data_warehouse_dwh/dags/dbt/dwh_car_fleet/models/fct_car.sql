@@ -110,34 +110,21 @@ INNER JOIN stg_car_spec scs ON fcc.brand_id = scs.brand AND fcc.fuel_type = scs.
 --INNER JOIN {{ ref('dim_province')}} dpv ON fc.province_id = dpv.province_id       
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*SELECT
---    dtr.datereg_id,
---   dbr.brand_id,
---    dpv.province_id,
-    ROW_NUMBER() OVER () AS car_id,
-    datereg_id,
-    province_id::TEXT,
-    brand_id:TEXT,
-    engine_power,
-    displacement,
-    fuel_type::TEXT,
-    emissions,
-    weight_mass
-FROM fct_car_temp fc
---INNER JOIN {{ ref('dim_datereg') }} dtr ON fc.datereg_id = dtr.datereg_id
---INNER JOIN {{ ref('dim_brand')}} dbr ON fc.brand_id = dbr.brand_id
---INNER JOIN {{ ref('dim_province')}} dpv ON fc.province_id = dpv.province_id
+    dtr.datereg_id,
+    --dbr.brand_id,
+    dpv.province_id,
+    --ROW_NUMBER() OVER () AS car_id,
+    fcc.datereg_id,
+    fcc.province_id::TEXT,
+    fcc.brand_id:TEXT,
+    fcc.engine_power,
+    fcc.displacement,
+    fcc.fuel_type::TEXT,
+    fcc.emissions,
+    fcc.weight_mass
+FROM fct_car_temp fcc
+INNER JOIN {{ ref('dim_datereg') }} dtr ON fcc.datereg_id = dtr.datereg_id
+--INNER JOIN {{ ref('dim_brand')}} dbr ON fcc.brand_id = dbr.brand_id
+INNER JOIN {{ ref('dim_province')}} dpv ON fcc.province_id = dpv.province_id
 */
