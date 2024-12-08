@@ -121,28 +121,45 @@ def dwh_pipeline_dag():
 
         conn.commit()
 
-    #insert_temp_table = SQLExecuteQueryOperator(
-    #    task_id="insert_temp_table",
-    #    conn_id="dwh_pgres",
-    #    sql="sql/insert_temp_table.sql",
-    #)
-
+    # TASK 8: cleaning
     cleaning_temp_table = SQLExecuteQueryOperator(
         task_id="cleaning_temp_table",
         conn_id="dwh_pgres",
         sql="sql/cleaning_temp_table.sql",
     )
 
-    chain(  #extract_1,
-            create_raw_table_1,
-            create_raw_table_2,
-            load_data_car_circulating(),
-            create_raw_province,
-            load_data_province(),
-            create_raw_car_spec,
-            load_car_spec(),
-            cleaning_temp_table
+    # TASK -: create iso code table
+    create_raw_iso_code = SQLExecuteQueryOperator(
+        task_id="create_raw_iso_code",
+        conn_id="dwh_pgres",
+        sql="sql/raw_iso_code.sql"
+    )
 
+    # TASK -: load iso code table
+    @task
+    def load_iso_code():
+        data_path = "include/ISO-3166-2-IT.csv"
+        postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
+        conn = postgres_hook.get_conn()
+        cur = conn.cursor()
+        with open(data_path, "r") as file:
+            cur.copy_expert(
+                "COPY raw_iso_code FROM STDIN WITH CSV HEADER DELIMITER AS ';' QUOTE '\"' ",
+                file,
+            )
+        conn.commit()
+
+    chain(  #extract_1,
+            #create_raw_table_1,
+            #create_raw_table_2,
+            #load_data_car_circulating(),
+            #create_raw_province,
+            #load_data_province(),
+            #create_raw_car_spec,
+            #load_car_spec(),
+            #cleaning_temp_table,
+            #create_raw_iso_code,
+            #load_iso_code()
     )
 
 dag = dwh_pipeline_dag()

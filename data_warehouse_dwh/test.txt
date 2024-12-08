@@ -242,4 +242,14 @@ INNER JOIN {{ ref('dim_brand')}} dbr ON scc.brand_id = dbr.brand_id AND scc.mode
 INNER JOIN {{ ref('dim_province')}} dpv ON scc.province_id = dpv.province_id
 */
 {{ dbt_utils.generate_surrogate_key(['brand',engine_power', 'engine_displacement', 'fuel_type']) }} AS specifications
+
+
+SELECT dpr.province_id, ric.region_name
+FROM dim_province dpr
+LEFT JOIN raw_iso_code ric
+ON UPPER(ric.region_name) = dpr.province_id
+
+select distinct ric.region_name from raw_iso_code ric
+where region_type='Province'
+order by ric.region_name
 -----------------
