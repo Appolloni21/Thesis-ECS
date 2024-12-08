@@ -1,5 +1,5 @@
 -- STAGING TABLE
-WITH fct_car_temp AS(
+WITH stg_car_temp AS(
     SELECT
         ROW_NUMBER() OVER () AS car_id,
         TO_DATE(immatricolazione, 'DD/MM/YYYY') AS datereg_id,
@@ -85,28 +85,28 @@ stg_car_spec AS (
     END AS co2_emissions
     FROM {{ source('dwh_car_fleet', 'raw_car_spec') }}
 )
-SELECT DISTINCT ON(fcc.car_id) --308393 match
-    fcc.car_id,
-    fcc.datereg_id,
-    fcc.brand,
-    scs.model,
-    {{ dbt_utils.generate_surrogate_key(['fcc.brand', 'scs.model']) }} as model_id,
-    fcc.province_id,
-    fcc.engine_power,
-    fcc.engine_displacement,
-    fcc.fuel_type,
+SELECT DISTINCT ON(sct.car_id) --308393 match
+    sct.car_id,
+    sct.datereg_id,
+    sct.province_id,
+    --sct.brand,
+    --scs.model,
+    {{ dbt_utils.generate_surrogate_key(['sct.brand', 'scs.model']) }} AS model_id,
+    sct.engine_power,
+    sct.engine_displacement,
+    sct.fuel_type,
     CASE
-        WHEN fcc.co2_emissions IS NULL THEN scs.co2_emissions
-        ELSE fcc.co2_emissions
+        WHEN sct.co2_emissions IS NULL THEN scs.co2_emissions
+        ELSE sct.co2_emissions
     END AS co2_emissions,
-    fcc.kerb_weight
-FROM fct_car_temp fcc 
-INNER JOIN stg_car_spec scs ON fcc.brand = scs.brand AND fcc.fuel_type = scs.fuel_type 
-                            AND fcc.engine_power = scs.engine_power
-                            AND fcc.engine_displacement = scs.engine_displacement   --1337713 match
-                            --AND fcc.kerb_weight = scs.kerb_weight                   --26 match
-                            --AND fcc.co2_emissions = scs.co2_emissions                --0 match
+    sct.kerb_weight
+FROM stg_car_temp sct 
+INNER JOIN stg_car_spec scs ON sct.brand = scs.brand AND sct.fuel_type = scs.fuel_type 
+                            AND sct.engine_power = scs.engine_power
+                            AND sct.engine_displacement = scs.engine_displacement   --1337713 match
+                            --AND sct.kerb_weight = scs.kerb_weight                   --26 match
+                            --AND sct.co2_emissions = scs.co2_emissions                --0 match
 --ORDER BY fcc.car_id
---INNER JOIN {{ ref('dim_datereg') }} dtr ON fcc.datereg_id = dtr.datereg_id         
---INNER JOIN {{ ref('dim_model')}} dmo ON fcc.brand = dmo.brand               --29minutes query,
---INNER JOIN {{ ref('dim_province')}} dpv ON fcc.province_id = dpv.province_id       
+--INNER JOIN {{ ref('dim_datereg') }} dtr ON sct.datereg_id = dtr.datereg_id         
+--INNER JOIN {{ ref('dim_model')}} dmo ON sct.brand = dmo.brand               --29minutes query,
+--INNER JOIN {{ ref('dim_province')}} dpv ON sct.province_id = dpv.province_id       

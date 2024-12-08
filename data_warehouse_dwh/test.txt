@@ -241,5 +241,5 @@ INNER JOIN {{ ref('dim_datereg') }} dtr ON scc.datereg_id = dtr.datereg_id
 INNER JOIN {{ ref('dim_brand')}} dbr ON scc.brand_id = dbr.brand_id AND scc.model=dbr.model
 INNER JOIN {{ ref('dim_province')}} dpv ON scc.province_id = dpv.province_id
 */
-
+{{ dbt_utils.generate_surrogate_key(['brand',engine_power', 'engine_displacement', 'fuel_type']) }} AS specifications
 -----------------
