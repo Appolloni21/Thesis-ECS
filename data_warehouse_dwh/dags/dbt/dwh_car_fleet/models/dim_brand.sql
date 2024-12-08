@@ -15,3 +15,4 @@ SELECT
     brand_id::TEXT,
     model::TEXT
 FROM temp_brands
+--3234 rows

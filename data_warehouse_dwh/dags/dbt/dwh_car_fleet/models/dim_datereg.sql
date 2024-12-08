@@ -17,5 +17,5 @@ SELECT
   EXTRACT(MONTH FROM date_part) AS month_reg,
   EXTRACT(DAY FROM date_part) AS day_reg
 FROM dateregistration_temp
-
+--18932 rows
 

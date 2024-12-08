@@ -30,10 +30,10 @@ DAG_ID = "DWH_pipeline_dag"
 def dwh_pipeline_dag():
 
     # TASK 1: extract raw data from sources
-    extract_1 = PythonOperator(
-        task_id="extract_1",
-        python_callable=get_data,
-    )
+    #extract_1 = PythonOperator(
+    #    task_id="extract_1",
+    #    python_callable=get_data,
+    #)
 
     # TASK 2: create circulating car table 1
     create_raw_table_1 = SQLExecuteQueryOperator(
@@ -73,31 +73,31 @@ def dwh_pipeline_dag():
                 postgreSQL_importing(query,conn,data_path)
 
     # TASK 4: create table for regions and provinces
-    create_raw_table_3 = SQLExecuteQueryOperator(
-        task_id="create_raw_table_3",
+    create_raw_province = SQLExecuteQueryOperator(
+        task_id="create_raw_province",
         conn_id="dwh_pgres",
-        sql="sql/raw_regions.sql",
+        sql="sql/raw_province.sql",
     )
 
     # TASK 5: load regions and provinces data
     @task
-    def load_data_3():
+    def load_data_province():
         data_path = "include/gi_comuni_cap.csv"
         postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
         conn = postgres_hook.get_conn()
         cur = conn.cursor()
         with open(data_path, "r") as file:
             cur.copy_expert(
-                "COPY raw_regions FROM STDIN WITH CSV HEADER DELIMITER AS ';' QUOTE '\"' ",
+                "COPY raw_province FROM STDIN WITH CSV HEADER DELIMITER AS ';' QUOTE '\"' ",
                 file,
             )
         conn.commit()
 
     # TASK 6: create car spec table
-    create_car_spec_table = SQLExecuteQueryOperator(
-        task_id="create_car_spec_table",
+    create_raw_car_spec = SQLExecuteQueryOperator(
+        task_id="create_raw_car_spec",
         conn_id="dwh_pgres",
-        sql="sql/raw_car_spec_1.sql"
+        sql="sql/raw_car_spec.sql"
     )
 
     # TASK 7: load car spec table
@@ -121,11 +121,11 @@ def dwh_pipeline_dag():
 
         conn.commit()
 
-    insert_temp_table = SQLExecuteQueryOperator(
-        task_id="insert_temp_table",
-        conn_id="dwh_pgres",
-        sql="sql/insert_temp_table.sql",
-    )
+    #insert_temp_table = SQLExecuteQueryOperator(
+    #    task_id="insert_temp_table",
+    #    conn_id="dwh_pgres",
+    #    sql="sql/insert_temp_table.sql",
+    #)
 
     cleaning_temp_table = SQLExecuteQueryOperator(
         task_id="cleaning_temp_table",
@@ -134,15 +134,14 @@ def dwh_pipeline_dag():
     )
 
     chain(  #extract_1,
-            #create_raw_table_1,
-            #create_raw_table_2,
-            #load_data_car_circulating(),
-            #create_raw_table_3,
-            #load_data_3(),
-            #create_car_spec_table,
+            create_raw_table_1,
+            create_raw_table_2,
+            load_data_car_circulating(),
+            create_raw_province,
+            load_data_province(),
+            create_raw_car_spec,
             load_car_spec(),
-            #insert_temp_table,
-            #cleaning_temp_table
+            cleaning_temp_table
 
     )
 

@@ -2,7 +2,7 @@
 WITH fct_car_temp AS(
     SELECT
         ROW_NUMBER() OVER () AS car_id,
-        TO_DATE(immatricolazione, 'DD/MM/YYYY') as datereg_id,
+        TO_DATE(immatricolazione, 'DD/MM/YYYY') AS datereg_id,
         CASE 
             WHEN make='FIAT - INNOCENTI' THEN 'FIAT'
             WHEN make='LANCIA - AUTOBIANCHI' THEN 'LANCIA'

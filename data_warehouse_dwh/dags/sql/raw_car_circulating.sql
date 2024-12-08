@@ -1,14 +1,14 @@
 -- create circulating cars table A
 CREATE TABLE IF NOT EXISTS raw_car_circulating (
-            v_type VARCHAR,
-            dest VARCHAR,
-            utilization VARCHAR,
-            provincia VARCHAR,
-            make VARCHAR,
+            v_type TEXT,
+            dest TEXT,
+            utilization TEXT,
+            provincia TEXT,
+            make TEXT,
             displacement FLOAT,
-            fuel VARCHAR,
+            fuel TEXT,
             engine_power NUMERIC,
-            immatricolazione VARCHAR,
-            classe VARCHAR,
+            immatricolazione TEXT,
+            classe TEXT,
             emissioni NUMERIC,
             peso NUMERIC);      --before was int 

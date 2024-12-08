@@ -12,3 +12,4 @@ SELECT
     region::TEXT,
     territory::TEXT
 FROM province_temp
+--107 rows
