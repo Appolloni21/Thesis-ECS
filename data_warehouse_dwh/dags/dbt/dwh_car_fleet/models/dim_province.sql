@@ -4,7 +4,7 @@ WITH province_temp AS (
         UPPER(denominazione_provincia) as province_id,
         denominazione_regione as region,
         ripartizione_geografica as territory
-    FROM {{ source('dwh_car_fleet', 'raw_regions') }}
+    FROM {{ source('dwh_car_fleet', 'raw_province') }}
     WHERE denominazione_provincia IS NOT NULL
 )
 SELECT

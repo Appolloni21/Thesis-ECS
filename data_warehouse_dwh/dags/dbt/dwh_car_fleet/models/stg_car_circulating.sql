@@ -12,7 +12,7 @@ WITH fct_car_temp AS(
             WHEN make='SHUANGHUAN AUTO' THEN 'SHUANGHAUN'
             WHEN make='TESLA MOTORS' THEN 'TESLA'
             ELSE make
-        END AS brand_id,
+        END AS brand,
         provincia as province_id,
         engine_power as engine_power,
         CASE
@@ -88,8 +88,9 @@ stg_car_spec AS (
 SELECT DISTINCT ON(fcc.car_id) --308393 match
     fcc.car_id,
     fcc.datereg_id,
-    fcc.brand_id,
+    fcc.brand,
     scs.model,
+    {{ dbt_utils.generate_surrogate_key(['fcc.brand', 'scs.model']) }} as model_id,
     fcc.province_id,
     fcc.engine_power,
     fcc.engine_displacement,
@@ -100,12 +101,12 @@ SELECT DISTINCT ON(fcc.car_id) --308393 match
     END AS co2_emissions,
     fcc.kerb_weight
 FROM fct_car_temp fcc 
-INNER JOIN stg_car_spec scs ON fcc.brand_id = scs.brand AND fcc.fuel_type = scs.fuel_type 
+INNER JOIN stg_car_spec scs ON fcc.brand = scs.brand AND fcc.fuel_type = scs.fuel_type 
                             AND fcc.engine_power = scs.engine_power
                             AND fcc.engine_displacement = scs.engine_displacement   --1337713 match
                             --AND fcc.kerb_weight = scs.kerb_weight                   --26 match
                             --AND fcc.co2_emissions = scs.co2_emissions                --0 match
 --ORDER BY fcc.car_id
 --INNER JOIN {{ ref('dim_datereg') }} dtr ON fcc.datereg_id = dtr.datereg_id         
---INNER JOIN {{ ref('dim_brand')}} dbr ON fcc.brand_id = dbr.brand_id               --29minutes query,
+--INNER JOIN {{ ref('dim_model')}} dmo ON fcc.brand = dmo.brand               --29minutes query,
 --INNER JOIN {{ ref('dim_province')}} dpv ON fcc.province_id = dpv.province_id       
