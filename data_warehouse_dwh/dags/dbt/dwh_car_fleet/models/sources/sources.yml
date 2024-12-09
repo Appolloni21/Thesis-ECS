@@ -8,3 +8,4 @@ sources:
       - name: raw_car_circulating
       - name: raw_province
       - name: raw_car_spec
+      - name: raw_iso_code
