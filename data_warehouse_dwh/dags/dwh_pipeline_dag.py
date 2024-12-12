@@ -150,14 +150,14 @@ def dwh_pipeline_dag():
         conn.commit()
 
     chain(  #extract_1,
-            create_raw_table_1,
-            create_raw_table_2,
-            load_data_car_circulating(),
+            #create_raw_table_1,
+            #create_raw_table_2,
+            #load_data_car_circulating(),
             #create_raw_province,
             #load_data_province(),
             #create_raw_car_spec,
             #load_car_spec(),
-            cleaning_temp_table,
+            #cleaning_temp_table,
             #create_raw_iso_code,
             #load_iso_code()
     )
