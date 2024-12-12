@@ -1,3 +1,4 @@
+import os, json
 from airflow import DAG
 
 from airflow.decorators import (
@@ -14,8 +15,33 @@ from airflow.providers.postgres.hooks.postgres import PostgresHook
 from datetime import datetime
 
 from include.utilities import *
-import os, json
+from pathlib import Path 
 
+from cosmos import DbtTaskGroup, ProjectConfig, ProfileConfig, ExecutionConfig, ExecutionMode
+from cosmos.profiles import PostgresUserPasswordProfileMapping 
+  
+DEFAULT_DBT_ROOT_PATH = Path(__file__).parent / "dbt" 
+DBT_EXECUTABLE_PATH = f"{os.environ['AIRFLOW_HOME']}/dbt_venv/bin/dbt"
+
+project_config = ProjectConfig(
+    dbt_project_path='/usr/local/airflow/dags/dbt/dwh_car_fleet'
+)
+  
+profile_config = ProfileConfig( 
+     profile_name="default", 
+     target_name="dev", 
+     profile_mapping=PostgresUserPasswordProfileMapping( 
+         conn_id="dwh_pgres", 
+         profile_args={"schema": "public",
+                       "port": 7432,
+                        "dbname": "dwh_warehouse_ecs" }, 
+     ), 
+) 
+
+execution_config = ExecutionConfig(
+        execution_mode=ExecutionMode.VIRTUALENV,
+        dbt_executable_path = DBT_EXECUTABLE_PATH 
+     )
 
 ENV_ID = os.environ.get("SYSTEM_TESTS_ENV_ID")
 DAG_ID = "DWH_pipeline_dag"
@@ -24,7 +50,7 @@ DAG_ID = "DWH_pipeline_dag"
 @dag(
     dag_id=DAG_ID,
     start_date=datetime(2021, 2, 2),
-    schedule="@once",
+    #schedule="@once",
     catchup=False,
 )
 def dwh_pipeline_dag():
@@ -149,6 +175,17 @@ def dwh_pipeline_dag():
             )
         conn.commit()
 
+    transform = DbtTaskGroup(
+        group_id='transform',
+        # dbt/cosmos-specific parameters 
+        project_config=project_config, 
+        profile_config=profile_config,
+        execution_config = execution_config, 
+        operator_args={ 
+            "install_deps": True,  # install any necessary dependencies before running any dbt command 
+        }, 
+    )
+
     chain(  #extract_1,
             #create_raw_table_1,
             #create_raw_table_2,
@@ -159,7 +196,8 @@ def dwh_pipeline_dag():
             #load_car_spec(),
             #cleaning_temp_table,
             #create_raw_iso_code,
-            #load_iso_code()
+            #load_iso_code(),
+            #transform
     )
 
 dag = dwh_pipeline_dag()
