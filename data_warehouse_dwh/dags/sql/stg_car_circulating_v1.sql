@@ -1,6 +1,5 @@
--- STAGING TABLE 
+-- STAGING TABLE
 WITH stg_car_temp AS(
-    --4.195.279 match 
     SELECT
         ROW_NUMBER() OVER () AS car_id,
         TO_DATE(immatricolazione, 'DD/MM/YYYY') AS datereg_id,
@@ -27,12 +26,12 @@ WITH stg_car_temp AS(
         END AS co2_emissions,
         peso as kerb_weight
     FROM {{ source('dwh_car_fleet', 'raw_car_circulating') }}
-    WHERE dest='AUTOVETTURA PER TRASPORTO DI PERSONE' /*AND make IS NOT NULL AND provincia IS NOT NULL 
+    WHERE dest='AUTOVETTURA PER TRASPORTO DI PERSONE' AND make IS NOT NULL AND provincia IS NOT NULL 
         AND immatricolazione IS NOT NULL 
-        AND engine_power IS NOT NULL*/ 
-        --AND displacement IS NOT NULL 
-        --AND fuel IS NOT NULL
-		--AND emissioni IS NOT NULL 
+        AND engine_power IS NOT NULL 
+        AND displacement IS NOT NULL /*4106846*/
+        AND fuel IS NOT NULL
+		--AND emissioni IS NOT NULL /*3402244*/
 		--AND peso IS NOT NULL
 ),
 stg_car_spec AS (
@@ -86,7 +85,7 @@ stg_car_spec AS (
     END AS co2_emissions
     FROM {{ source('dwh_car_fleet', 'raw_car_spec') }}
 )
-SELECT DISTINCT ON(sct.car_id) 
+SELECT DISTINCT ON(sct.car_id) --308393 match
     sct.car_id,
     sct.datereg_id,
     sct.province_id,
@@ -102,7 +101,12 @@ SELECT DISTINCT ON(sct.car_id)
     END AS co2_emissions,
     sct.kerb_weight
 FROM stg_car_temp sct 
-FULL OUTER JOIN stg_car_spec scs ON sct.brand = scs.brand AND sct.fuel_type = scs.fuel_type 
+INNER JOIN stg_car_spec scs ON sct.brand = scs.brand AND sct.fuel_type = scs.fuel_type 
                             AND sct.engine_power = scs.engine_power
-                            AND sct.engine_displacement = scs.engine_displacement  
---4.195.280 match
+                            AND sct.engine_displacement = scs.engine_displacement   --1337713 match
+                            --AND sct.kerb_weight = scs.kerb_weight                   --26 match
+                            --AND sct.co2_emissions = scs.co2_emissions                --0 match
+--ORDER BY fcc.car_id
+--INNER JOIN {{ ref('dim_datereg') }} dtr ON sct.datereg_id = dtr.datereg_id         
+--INNER JOIN {{ ref('dim_model')}} dmo ON sct.brand = dmo.brand               --29minutes query,
+--INNER JOIN {{ ref('dim_province')}} dpv ON sct.province_id = dpv.province_id       

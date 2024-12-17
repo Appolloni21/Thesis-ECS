@@ -50,7 +50,7 @@ DAG_ID = "DWH_pipeline_dag"
 @dag(
     dag_id=DAG_ID,
     start_date=datetime(2021, 2, 2),
-    #schedule="@once",
+    schedule="@once",
     catchup=False,
 )
 def dwh_pipeline_dag():
@@ -187,17 +187,17 @@ def dwh_pipeline_dag():
     )
 
     chain(  #extract_1,
-            #create_raw_table_1,
-            #create_raw_table_2,
-            #load_data_car_circulating(),
-            #create_raw_province,
-            #load_data_province(),
-            #create_raw_car_spec,
-            #load_car_spec(),
-            #cleaning_temp_table,
-            #create_raw_iso_code,
-            #load_iso_code(),
-            #transform
+            create_raw_table_1,
+            create_raw_table_2,
+            load_data_car_circulating(),
+            create_raw_province,
+            load_data_province(),
+            create_raw_car_spec,
+            load_car_spec(),
+            cleaning_temp_table,
+            create_raw_iso_code,
+            load_iso_code(),
+            transform
     )
 
 dag = dwh_pipeline_dag()

@@ -7,6 +7,7 @@ SELECT
     dm.model,
     dm.brand,
     fct.engine_power
-FROM {{ ref('fct_car') }} fct
+FROM {{ ref('stg_car_circulating') }} fct
 INNER JOIN {{ ref('dim_province') }} dp ON fct.province_id = dp.province_id
 INNER JOIN {{ ref('dim_model' )}} dm ON fct.model_id = dm.model_id
+INNER JOIN {{ ref('dim_datereg' )}} dtr ON fct.datereg_id = dtr.datereg_id
