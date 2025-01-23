@@ -1,4 +1,5 @@
 import os, json
+#from airflow import DAG
 
 from airflow.decorators import (
     dag,
@@ -8,6 +9,8 @@ from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.operators.python import PythonOperator
 from airflow.utils.helpers import chain
 
+# from airflow.models.baseoperator import chain
+# from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from datetime import datetime
 
@@ -40,14 +43,23 @@ execution_config = ExecutionConfig(
         dbt_executable_path = DBT_EXECUTABLE_PATH 
      )
 
-DAG_ID = "DWH_pipeline_dag"
+#ENV_ID = os.environ.get("SYSTEM_TESTS_ENV_ID")
+DAG_ID = "pipelincopy"
 
 
 @dag(
     dag_id=DAG_ID,
-    schedule = None
+    start_date=datetime(2021, 2, 2),
+    schedule="@once",
+    catchup=False,
 )
 def dwh_pipeline_dag():
+
+    # TASK 1: extract raw data from sources
+    #extract_1 = PythonOperator(
+    #    task_id="extract_1",
+    #    python_callable=get_data,
+    #)
 
     # TASK 2: create circulating car table 1
     create_raw_table_1 = SQLExecuteQueryOperator(
@@ -64,7 +76,8 @@ def dwh_pipeline_dag():
         sql="sql/raw_car_temp.sql",
     )
 
-# TASK 3: load data
+
+    # TASK 3: load data
     @task
     def load_data_car_circulating():
         postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")

@@ -23,7 +23,7 @@ iso_province_temp AS(
             WHEN region_name = 'Pesaro e Urbino' THEN 'IT-PU'
 			ELSE (country_short_code || '-' || regional_code) 
 		END AS province_iso_code
-	FROM raw_iso_code
+	FROM {{ source('dwh_car_fleet', 'raw_iso_code') }}
 ),
 iso_region_temp AS(
 	SELECT

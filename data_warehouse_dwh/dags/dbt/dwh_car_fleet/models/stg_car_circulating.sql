@@ -5,29 +5,29 @@ WITH stg_car_temp AS(
         ROW_NUMBER() OVER () AS car_id,
         TO_DATE(immatricolazione, 'DD/MM/YYYY') AS datereg_id,
         CASE 
-            WHEN make='FIAT - INNOCENTI' THEN 'FIAT'
-            WHEN make='LANCIA - AUTOBIANCHI' THEN 'LANCIA'
-            WHEN make='MORGAN MOTOR' THEN 'MORGAN'
-            WHEN make='ROLLS ROYCE' THEN 'ROLLS-ROYCE'
-            WHEN make='ROVER CARS' THEN 'ROVER'
-            WHEN make='SHUANGHUAN AUTO' THEN 'SHUANGHAUN'
-            WHEN make='TESLA MOTORS' THEN 'TESLA'
-            ELSE make
+            WHEN marca='FIAT - INNOCENTI' THEN 'FIAT'
+            WHEN marca='LANCIA - AUTOBIANCHI' THEN 'LANCIA'
+            WHEN marca='MORGAN MOTOR' THEN 'MORGAN'
+            WHEN marca='ROLLS ROYCE' THEN 'ROLLS-ROYCE'
+            WHEN marca='ROVER CARS' THEN 'ROVER'
+            WHEN marca='SHUANGHUAN AUTO' THEN 'SHUANGHAUN'
+            WHEN marca='TESLA MOTORS' THEN 'TESLA'
+            ELSE marca
         END AS brand,
         provincia as province_id,
-        engine_power as engine_power,
+        potenza as engine_power,
         CASE
-            WHEN fuel='ELETTR' THEN 0
-            ELSE displacement
+            WHEN alimentazione='ELETTR' THEN 0
+            ELSE cilindrata
         END AS engine_displacement,
-        fuel as fuel_type,
+        alimentazione as fuel_type,
         CASE
-            WHEN fuel='ELETTR' THEN 0
+            WHEN alimentazione='ELETTR' THEN 0
             ELSE emissioni
         END AS co2_emissions,
         peso as kerb_weight
     FROM {{ source('dwh_car_fleet', 'raw_car_circulating') }}
-    WHERE dest='AUTOVETTURA PER TRASPORTO DI PERSONE' /*AND make IS NOT NULL AND provincia IS NOT NULL 
+    WHERE destinazione='AUTOVETTURA PER TRASPORTO DI PERSONE' /*AND make IS NOT NULL AND provincia IS NOT NULL 
         AND immatricolazione IS NOT NULL 
         AND engine_power IS NOT NULL*/ 
         --AND displacement IS NOT NULL 
