@@ -85,6 +85,13 @@ def dwh_pipeline_dag():
                 query = "COPY raw_car_temp FROM STDIN WITH (FORMAT CSV, DELIMITER ',', QUOTE '\"') "
                 postgreSQL_importing(query,conn,data_path)
 
+    # TASK 8: cleaning
+    cleaning_temp_table = SQLExecuteQueryOperator(
+        task_id="cleaning_temp_table",
+        conn_id="dwh_pgres",
+        sql="sql/cleaning_temp_table.sql",
+    )
+
     # TASK 4: create table for regions and provinces
     create_raw_province = SQLExecuteQueryOperator(
         task_id="create_raw_province",
@@ -134,13 +141,7 @@ def dwh_pipeline_dag():
 
         conn.commit()
 
-    # TASK 8: cleaning
-    cleaning_temp_table = SQLExecuteQueryOperator(
-        task_id="cleaning_temp_table",
-        conn_id="dwh_pgres",
-        sql="sql/cleaning_temp_table.sql",
-    )
-
+    
     # TASK -: create iso code table
     create_raw_iso_code = SQLExecuteQueryOperator(
         task_id="create_raw_iso_code",
@@ -162,28 +163,28 @@ def dwh_pipeline_dag():
             )
         conn.commit()
 
-    transform = DbtTaskGroup(
-        group_id='transform',
-        # dbt/cosmos-specific parameters 
-        project_config=project_config, 
-        profile_config=profile_config,
-        execution_config = execution_config, 
-        operator_args={ 
-            "install_deps": True,  # install any necessary dependencies before running any dbt command 
-        }, 
-    )
+    #transform = DbtTaskGroup(
+    #    group_id='transform',
+    #    # dbt/cosmos-specific parameters 
+    #    project_config=project_config, 
+    #    profile_config=profile_config,
+    #    execution_config = execution_config, 
+    #    operator_args={ 
+    #        "install_deps": True,  # install any necessary dependencies before running any dbt command 
+    #    }, 
+    #)
 
     chain(  #extract_1,
             create_raw_table_1,
             create_raw_table_2,
-            #load_data_car_circulating(),
-            #create_raw_province,
-            #load_data_province(),
-            #create_raw_car_spec,
-            #load_car_spec(),
-            #cleaning_temp_table,
-            #create_raw_iso_code,
-            #load_iso_code(),
+            load_data_car_circulating(),
+            cleaning_temp_table,
+            create_raw_province,
+            load_data_province(),
+            create_raw_car_spec,
+            load_car_spec(),
+            create_raw_iso_code,
+            load_iso_code(),
             #transform
     )
 
