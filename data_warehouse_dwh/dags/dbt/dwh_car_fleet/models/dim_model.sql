@@ -1,4 +1,4 @@
-WITH parsed_data AS (
+WITH stg_model AS (
     SELECT
         UPPER(dati ->> 'Brand') AS brand,
         dati ->> 'Model' AS model
@@ -9,5 +9,5 @@ SELECT DISTINCT
     {{ dbt_utils.generate_surrogate_key(['brand', 'model']) }} as model_id,
     brand AS brand,
     model AS model
-FROM parsed_data
+FROM stg_model
 --3234 rows

@@ -25,15 +25,9 @@ WITH stg_car_temp AS(
             WHEN alimentazione='ELETTR' THEN 0
             ELSE emissioni
         END AS co2_emissions,
-        peso as kerb_weight
+        peso as max_weight
     FROM {{ source('dwh_car_fleet', 'raw_car_circulating') }}
-    WHERE destinazione='AUTOVETTURA PER TRASPORTO DI PERSONE' /*AND make IS NOT NULL AND provincia IS NOT NULL 
-        AND immatricolazione IS NOT NULL 
-        AND engine_power IS NOT NULL*/ 
-        --AND displacement IS NOT NULL 
-        --AND fuel IS NOT NULL
-		--AND emissioni IS NOT NULL 
-		--AND peso IS NOT NULL
+    WHERE destinazione='AUTOVETTURA PER TRASPORTO DI PERSONE'
 ),
 stg_car_spec AS (
     SELECT
@@ -62,8 +56,11 @@ stg_car_spec AS (
         WHEN (dati ->> 'Fuel Type') = 'Electricity' THEN 0
         WHEN (dati ->> 'Fuel Type') = 'Hydrogen' THEN 0
         ELSE regexp_replace((dati ->> 'Engine displacement'), '[^\d].*', '', 'g')::DOUBLE PRECISION
-    END AS engine_displacement,        
-    regexp_replace((dati ->> 'Kerb Weight'), '[^\d].*', '', 'g')::NUMERIC as kerb_weight,
+    END AS engine_displacement,
+    CASE 
+        WHEN (dati ->> 'Max. weight') IS NOT NULL THEN regexp_replace((dati ->> 'Max. weight'), '[^\d].*', '', 'g')::NUMERIC
+        ELSE regexp_replace((dati ->> 'Kerb Weight'), '[^\d].*', '', 'g')::NUMERIC
+    END AS v_weight,        
     CASE
         WHEN (dati ->> 'Fuel Type') = 'Electricity' THEN 0
         WHEN (dati ->> 'Fuel Type') = 'Hydrogen' THEN 0
@@ -100,9 +97,12 @@ SELECT DISTINCT ON(sct.car_id)
         WHEN sct.co2_emissions IS NULL THEN scs.co2_emissions
         ELSE sct.co2_emissions
     END AS co2_emissions,
-    sct.kerb_weight
+    CASE
+        WHEN sct.max_weight IS NULL THEN scs.v_weight
+        ELSE sct.max_weight
+    END AS max_weight
 FROM stg_car_temp sct 
 FULL OUTER JOIN stg_car_spec scs ON sct.brand = scs.brand AND sct.fuel_type = scs.fuel_type 
-                            AND sct.engine_power = scs.engine_power
+                            AND round(sct.engine_power*1.341) = scs.engine_power
                             AND sct.engine_displacement = scs.engine_displacement  
 --4.195.280 match

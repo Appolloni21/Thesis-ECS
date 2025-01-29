@@ -1,9 +1,6 @@
 import os, json
 
-from airflow.decorators import (
-    dag,
-    task,
-)
+from airflow.decorators import dag, task
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.operators.python import PythonOperator
 from airflow.utils.helpers import chain
@@ -76,12 +73,12 @@ def dwh_pipeline_dag():
             if file_name.endswith("Friuli.csv"):
                 query = "COPY raw_car_temp FROM STDIN WITH (FORMAT CSV, HEADER, DELIMITER ',', QUOTE '\"') "
                 postgreSQL_importing(query, conn, data_path)
-            elif(get_region_name(file_name) in REGIONS_A):
-            #elif(file_name.endswith("Abruzzo.csv")):
+            #elif(get_region_name(file_name) in REGIONS_A):
+            elif(file_name.endswith("Abruzzo.csv")):
                 query = "COPY raw_car_circulating FROM STDIN WITH CSV DELIMITER AS ',' QUOTE '\"' "
                 postgreSQL_importing(query,conn,data_path)
-            else:
-            #elif(file_name.endswith("Puglia.csv")):
+            #else:
+            elif(file_name.endswith("Puglia.csv")):
                 query = "COPY raw_car_temp FROM STDIN WITH (FORMAT CSV, DELIMITER ',', QUOTE '\"') "
                 postgreSQL_importing(query,conn,data_path)
 
@@ -163,16 +160,16 @@ def dwh_pipeline_dag():
             )
         conn.commit()
 
-    #transform = DbtTaskGroup(
-    #    group_id='transform',
-    #    # dbt/cosmos-specific parameters 
-    #    project_config=project_config, 
-    #    profile_config=profile_config,
-    #    execution_config = execution_config, 
-    #    operator_args={ 
-    #        "install_deps": True,  # install any necessary dependencies before running any dbt command 
-    #    }, 
-    #)
+    transform = DbtTaskGroup(
+        group_id='transform',
+        # dbt/cosmos-specific parameters 
+        project_config=project_config, 
+        profile_config=profile_config,
+        execution_config = execution_config, 
+        operator_args={ 
+            "install_deps": True,  # install any necessary dependencies before running any dbt command 
+        }, 
+    )
 
     chain(  #extract_1,
             create_raw_table_1,
@@ -185,7 +182,7 @@ def dwh_pipeline_dag():
             load_car_spec(),
             create_raw_iso_code,
             load_iso_code(),
-            #transform
+            transform
     )
 
 dag = dwh_pipeline_dag()

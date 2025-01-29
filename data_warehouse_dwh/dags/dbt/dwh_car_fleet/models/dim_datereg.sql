@@ -1,9 +1,8 @@
-WITH dateregistration_temp AS (
+WITH stg_dateregistration AS (
     SELECT DISTINCT
         immatricolazione AS datereg_id,
         CASE
             WHEN LENGTH(immatricolazione) = 10 THEN
-            -- Date format: "DD/MM/YYYY"
                  TO_DATE(immatricolazione, 'DD/MM/YYYY')
             ELSE
                 NULL
@@ -16,6 +15,6 @@ SELECT
   EXTRACT(YEAR FROM date_part) AS year_reg,
   EXTRACT(MONTH FROM date_part) AS month_reg,
   EXTRACT(DAY FROM date_part) AS day_reg
-FROM dateregistration_temp
+FROM stg_dateregistration
 --18932 rows
 
