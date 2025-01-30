@@ -16,3 +16,4 @@ FROM {{ ref('fct_car') }} fct
 INNER JOIN {{ ref('dim_province') }} dp ON fct.province_id = dp.province_id
 INNER JOIN {{ ref('dim_model' )}} dm ON fct.model_id = dm.model_id
 INNER JOIN {{ ref('dim_datereg' )}} dtr ON fct.datereg_id = dtr.datereg_id
+INNER JOIN {{ ref('dim_fuel' )}} dfu ON fct.fuel_type = dfu.fuel_id

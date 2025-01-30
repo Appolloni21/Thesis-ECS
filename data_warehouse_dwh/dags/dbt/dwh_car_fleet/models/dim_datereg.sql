@@ -1,20 +1,9 @@
-WITH stg_dateregistration AS (
-    SELECT DISTINCT
-        immatricolazione AS datereg_id,
-        CASE
-            WHEN LENGTH(immatricolazione) = 10 THEN
-                 TO_DATE(immatricolazione, 'DD/MM/YYYY')
-            ELSE
-                NULL
-        END AS date_part
-    FROM {{ source('dwh_car_fleet', 'raw_car_circulating') }}
-    WHERE immatricolazione IS NOT NULL
-)
-SELECT
-  TO_DATE(datereg_id, 'DD/MM/YYYY') AS datereg_id,
-  EXTRACT(YEAR FROM date_part) AS year_reg,
-  EXTRACT(MONTH FROM date_part) AS month_reg,
-  EXTRACT(DAY FROM date_part) AS day_reg
-FROM stg_dateregistration
---18932 rows
+SELECT DISTINCT ON (immatricolazione)
+    TO_DATE(immatricolazione, 'DD/MM/YYYY') AS datereg_id,
+    EXTRACT(YEAR FROM TO_DATE(immatricolazione, 'DD/MM/YYYY')) AS year_reg,
+    EXTRACT(MONTH FROM TO_DATE(immatricolazione, 'DD/MM/YYYY')) AS month_reg,
+    EXTRACT(DAY FROM TO_DATE(immatricolazione, 'DD/MM/YYYY')) AS day_reg
+FROM {{ source('dwh_car_fleet', 'raw_car_circulating') }}
+WHERE immatricolazione IS NOT NULL AND LENGTH(immatricolazione) = 10
+--16610 rows
 
