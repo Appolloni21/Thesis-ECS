@@ -5,17 +5,33 @@ WITH stg_car_temp AS(
         ROW_NUMBER() OVER () AS car_id,
         TO_DATE(immatricolazione, 'DD/MM/YYYY') AS datereg_id,
         CASE 
+            WHEN marca='AIXAM MEGA' THEN 'AIXAM'
+            WHEN marca='IVECO - FIAT' THEN 'IVECO'
             WHEN marca='FIAT - INNOCENTI' THEN 'FIAT'
             WHEN marca='LANCIA - AUTOBIANCHI' THEN 'LANCIA'
+            WHEN marca='LANCIA - AUTOBIANCHI                                        ' THEN 'LANCIA'
+            WHEN marca='MORGAN MOTOR' THEN 'MORGAN'
+            WHEN marca='MERCEDES' THEN 'MERCEDES-BENZ'
             WHEN marca='MORGAN MOTOR' THEN 'MORGAN'
             WHEN marca='ROLLS ROYCE' THEN 'ROLLS-ROYCE'
             WHEN marca='ROVER CARS' THEN 'ROVER'
             WHEN marca='SHUANGHUAN AUTO' THEN 'SHUANGHAUN'
+            WHEN marca='SSANGJONG' THEN 'SSANGYONG'
             WHEN marca='TESLA MOTORS' THEN 'TESLA'
             ELSE marca
         END AS brand,
-        provincia as province_id,
-        potenza as engine_power,
+        CASE
+            WHEN provincia = 'BOLZANO-BOZEN' THEN 'BOLZANO'
+            WHEN provincia = 'FORLI''' THEN 'FORLÌ-CESENA'
+            WHEN provincia = 'PESARO' THEN 'PESARO E URBINO'
+            WHEN provincia = 'REGGIO DI CALABRIA' THEN 'REGGIO CALABRIA'
+            WHEN provincia = 'VERBANIA' THEN 'VERBANO-CUSIO-OSSOLA'
+            WHEN provincia = 'SUD SARDEGNA' THEN 'CARBONIA-IGLESIAS'
+            WHEN provincia = 'REGGIO NELL''EMILIA' THEN 'REGGIO EMILIA'
+            WHEN provincia = 'MONZA E DELLA BRIANZA' THEN 'MONZA E BRIANZA'
+            ELSE provincia 
+        END as province_id,
+        round(potenza*1.341) as engine_power,
         CASE
             WHEN alimentazione='ELETTR' THEN 0
             ELSE cilindrata
@@ -103,6 +119,6 @@ SELECT DISTINCT ON(sct.car_id)
     END AS max_weight
 FROM stg_car_temp sct 
 FULL OUTER JOIN stg_car_spec scs ON sct.brand = scs.brand AND sct.fuel_type = scs.fuel_type 
-                            AND round(sct.engine_power*1.341) = scs.engine_power
+                            AND sct.engine_power = scs.engine_power
                             AND sct.engine_displacement = scs.engine_displacement  
 --4.195.280 match

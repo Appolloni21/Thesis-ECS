@@ -73,12 +73,12 @@ def dwh_pipeline_dag():
             if file_name.endswith("Friuli.csv"):
                 query = "COPY raw_car_temp FROM STDIN WITH (FORMAT CSV, HEADER, DELIMITER ',', QUOTE '\"') "
                 postgreSQL_importing(query, conn, data_path)
-            #elif(get_region_name(file_name) in REGIONS_A):
-            elif(file_name.endswith("Abruzzo.csv")):
+            elif(get_region_name(file_name) in REGIONS_A):
+            #elif(file_name.endswith("Abruzzo.csv")):
                 query = "COPY raw_car_circulating FROM STDIN WITH CSV DELIMITER AS ',' QUOTE '\"' "
                 postgreSQL_importing(query,conn,data_path)
-            #else:
-            elif(file_name.endswith("Puglia.csv")):
+            else:
+            #elif(file_name.endswith("Puglia.csv")):
                 query = "COPY raw_car_temp FROM STDIN WITH (FORMAT CSV, DELIMITER ',', QUOTE '\"') "
                 postgreSQL_importing(query,conn,data_path)
 
