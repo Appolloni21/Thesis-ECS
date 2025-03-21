@@ -31,7 +31,7 @@ def get_links(urls, html_selector):
     return links
 
 def get_cars(urls):
-    #In this dict I will put all the veichle spec we are interested
+    #In this dict I will put all the vehicle spec we are interested
     cars = dict()
     id=0
     for url in tqdm(urls):
