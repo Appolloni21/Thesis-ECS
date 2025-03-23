@@ -1,4 +1,5 @@
 # Investigating a Data Warehouse Realization through Open Source Tools
 
 
-![arch_pipeline](https://github.com/user-attachments/assets/fe92e78a-7f22-484c-b912-100f51747b03)
+
+![arch_pipeline_white](https://github.com/user-attachments/assets/f3d28c03-0aa5-4a0c-85d0-8c197356083e)
