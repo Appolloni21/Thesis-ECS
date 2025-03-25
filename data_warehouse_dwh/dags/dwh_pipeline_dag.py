@@ -46,7 +46,7 @@ DAG_ID = "DWH_pipeline_dag"
 )
 def dwh_pipeline_dag():
 
-    # TASK 2: create circulating car table 1
+    # TASK 1: create circulating car table 1
     create_raw_table_1 = SQLExecuteQueryOperator(
         task_id="create_raw_table_1",
         conn_id="dwh_pgres",
@@ -54,14 +54,14 @@ def dwh_pipeline_dag():
     )
 
    
-    # TASK 2b: create circulating car temp table
+    # TASK 2: create circulating car temp table
     create_raw_table_2 = SQLExecuteQueryOperator(
         task_id="create_raw_table_2",
         conn_id="dwh_pgres",
         sql="sql/raw_car_temp.sql",
     )
 
-# TASK 3: load data
+    # TASK 3: load data
     @task
     def load_data_car_circulating():
         postgres_hook = PostgresHook(postgres_conn_id="dwh_pgres")
@@ -82,21 +82,21 @@ def dwh_pipeline_dag():
                 query = "COPY raw_car_temp FROM STDIN WITH (FORMAT CSV, DELIMITER ',', QUOTE '\"') "
                 postgreSQL_importing(query,conn,data_path)
 
-    # TASK 8: cleaning
+    # TASK 4: cleaning
     cleaning_temp_table = SQLExecuteQueryOperator(
         task_id="cleaning_temp_table",
         conn_id="dwh_pgres",
         sql="sql/cleaning_temp_table.sql",
     )
 
-    # TASK 4: create table for regions and provinces
+    # TASK 5: create table for regions and provinces
     create_raw_province = SQLExecuteQueryOperator(
         task_id="create_raw_province",
         conn_id="dwh_pgres",
         sql="sql/raw_province.sql",
     )
 
-    # TASK 5: load regions and provinces data
+    # TASK 6: load regions and provinces data
     @task
     def load_data_province():
         data_path = "include/gi_comuni_cap.csv"
@@ -110,14 +110,14 @@ def dwh_pipeline_dag():
             )
         conn.commit()
 
-    # TASK 6: create car spec table
+    # TASK 7: create car spec table
     create_raw_car_spec = SQLExecuteQueryOperator(
         task_id="create_raw_car_spec",
         conn_id="dwh_pgres",
         sql="sql/raw_car_spec.sql"
     )
 
-    # TASK 7: load car spec table
+    # TASK 8: load car spec table
     @task
     def load_car_spec():
         data_path = "include/datasets_scraping/car_spec.json"
@@ -139,14 +139,14 @@ def dwh_pipeline_dag():
         conn.commit()
 
     
-    # TASK -: create iso code table
+    # TASK 9: create iso code table
     create_raw_iso_code = SQLExecuteQueryOperator(
         task_id="create_raw_iso_code",
         conn_id="dwh_pgres",
         sql="sql/raw_iso_code.sql"
     )
 
-    # TASK -: load iso code table
+    # TASK 10: load iso code table
     @task
     def load_iso_code():
         data_path = "include/ISO-3166-2-IT.csv"
@@ -171,8 +171,7 @@ def dwh_pipeline_dag():
         }, 
     )
 
-    chain(  #extract_1,
-            create_raw_table_1,
+    chain(  create_raw_table_1,
             create_raw_table_2,
             load_data_car_circulating(),
             cleaning_temp_table,
